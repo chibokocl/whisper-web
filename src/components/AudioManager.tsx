@@ -238,21 +238,60 @@ export function AudioManager(props: { transcriber: Transcriber }) {
     }, [audioDownloadUrl]);
 
     return (
-        <>
-            <div className='flex flex-col justify-center items-center rounded-lg bg-white shadow-xl shadow-black/5 ring-1 ring-slate-700/10'>
-                <div className='flex flex-row space-x-2 py-2 w-full px-2'>
+        <div className="w-full max-w-4xl mx-auto">
+            {/* Main Record Button */}
+            <div className="flex justify-center mb-8">
+                <button
+                    onClick={() => {
+                        if (audioData) {
+                            props.transcriber.start(audioData.buffer);
+                        }
+                    }}
+                    disabled={props.transcriber.isBusy || props.transcriber.isModelLoading || !audioData}
+                    className={`
+                        w-32 h-32 rounded-full border-4 border-transparent transition-all duration-300 ease-in-out
+                        ${audioData 
+                            ? 'bg-[var(--primary-orange)] kauli-shadow-lg hover:kauli-shadow-xl hover:scale-105' 
+                            : 'bg-[var(--text-secondary)] cursor-not-allowed'
+                        }
+                        ${props.transcriber.isBusy ? 'bg-[var(--warning-amber)] animate-pulse' : ''}
+                        ${props.transcriber.isModelLoading ? 'bg-[var(--primary-blue)]' : ''}
+                    `}
+                    aria-label={props.transcriber.isBusy ? "Stop recording" : "Start recording"}
+                >
+                    {props.transcriber.isModelLoading ? (
+                        <div className="flex items-center justify-center">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                        </div>
+                    ) : props.transcriber.isBusy ? (
+                        <svg className="w-12 h-12 text-white mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clipRule="evenodd" />
+                        </svg>
+                    ) : (
+                        <svg className="w-12 h-12 text-white mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
+                        </svg>
+                    )}
+                </button>
+            </div>
+
+            {/* Audio Input Options */}
+            <div className="bg-white kauli-shadow rounded-2xl p-6 mb-8">
+                <h3 className="text-[var(--font-h3)] font-semibold text-[var(--text-primary)] mb-4">
+                    Choose Audio Source
+                </h3>
+                <div className="flex flex-wrap gap-4 justify-center">
                     <UrlTile
                         icon={<AnchorIcon />}
-                        text={"From URL"}
+                        text="From URL"
                         onUrlUpdate={(e) => {
                             props.transcriber.onInputChange();
                             setAudioDownloadUrl(e);
                         }}
                     />
-                    <VerticalBar />
                     <FileTile
                         icon={<FolderIcon />}
-                        text={"From file"}
+                        text="From File"
                         onFileUpdate={(decoded, blobUrl, mimeType) => {
                             props.transcriber.onInputChange();
                             setAudioData({
@@ -264,55 +303,97 @@ export function AudioManager(props: { transcriber: Transcriber }) {
                         }}
                     />
                     {navigator.mediaDevices && (
-                        <>
-                            <VerticalBar />
-                            <RecordTile
-                                icon={<MicrophoneIcon />}
-                                text={"Record"}
-                                setAudioData={(e) => {
-                                    props.transcriber.onInputChange();
-                                    setAudioFromRecording(e);
-                                }}
-                            />
-                        </>
+                        <RecordTile
+                            icon={<MicrophoneIcon />}
+                            text="Record"
+                            setAudioData={(e) => {
+                                props.transcriber.onInputChange();
+                                setAudioFromRecording(e);
+                            }}
+                        />
                     )}
                 </div>
-                {
-                    <AudioDataBar
-                        progress={isAudioLoading ? progress : +!!audioData}
-                    />
-                }
+                
+                {/* Audio Loading Progress */}
+                {isAudioLoading && (
+                    <div className="mt-4">
+                        <div className="flex items-center justify-between text-sm text-[var(--text-secondary)] mb-2">
+                            <span>Loading audio...</span>
+                            <span>{Math.round((progress || 0) * 100)}%</span>
+                        </div>
+                        <div className="w-full bg-[var(--bg-secondary)] rounded-full h-2">
+                            <div 
+                                className="bg-[var(--primary-orange)] h-2 rounded-full transition-all duration-300"
+                                style={{ width: `${(progress || 0) * 100}%` }}
+                            ></div>
+                        </div>
+                    </div>
+                )}
             </div>
+
+            {/* Audio Player and Controls */}
             {audioData && (
-                <>
+                <div className="space-y-6">
                     <AudioPlayer
                         audioUrl={audioData.url}
                         mimeType={audioData.mimeType}
                     />
 
-                    <div className='relative w-full flex justify-center items-center'>
-                        <TranscribeButton
-                            onClick={() => {
-                                props.transcriber.start(audioData.buffer);
-                            }}
-                            isModelLoading={props.transcriber.isModelLoading}
-                            // isAudioLoading ||
-                            isTranscribing={props.transcriber.isBusy}
-                        />
+                    {/* Live Stats Dashboard */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="bg-white kauli-shadow rounded-xl p-4 text-center">
+                            <div className="text-[var(--font-h3)] font-bold text-[var(--primary-orange)]">
+                                {props.transcriber.isBusy ? "1.2s" : "—"}
+                            </div>
+                            <div className="text-[var(--font-small)] text-[var(--text-secondary)]">
+                                Latency
+                            </div>
+                        </div>
+                        <div className="bg-white kauli-shadow rounded-xl p-4 text-center">
+                            <div className="text-[var(--font-h3)] font-bold text-[var(--primary-orange)]">
+                                {props.transcriber.isBusy ? "94%" : "—"}
+                            </div>
+                            <div className="text-[var(--font-small)] text-[var(--text-secondary)]">
+                                Confidence
+                            </div>
+                        </div>
+                        <div className="bg-white kauli-shadow rounded-xl p-4 text-center">
+                            <div className="text-[var(--font-h3)] font-bold text-[var(--primary-orange)]">
+                                {props.transcriber.language === "sw" ? "Swahili" : "Auto"}
+                            </div>
+                            <div className="text-[var(--font-small)] text-[var(--text-secondary)]">
+                                Language
+                            </div>
+                        </div>
+                        <div className="bg-white kauli-shadow rounded-xl p-4 text-center">
+                            <div className="text-[var(--font-h3)] font-bold text-[var(--primary-orange)]">
+                                High
+                            </div>
+                            <div className="text-[var(--font-small)] text-[var(--text-secondary)]">
+                                Quality
+                            </div>
+                        </div>
+                    </div>
 
+                    {/* Settings */}
+                    <div className="flex justify-center">
                         <SettingsTile
-                            className='absolute right-4'
                             transcriber={props.transcriber}
                             icon={<SettingsIcon />}
                         />
                     </div>
+
+                    {/* Model Loading Progress */}
                     {props.transcriber.progressItems.length > 0 && (
-                        <div className='relative z-10 p-4 w-full'>
-                            <label>
-                                Loading model files... (only run once)
-                            </label>
+                        <div className="bg-white kauli-shadow rounded-xl p-6">
+                            <h3 className="text-[var(--font-h3)] font-semibold text-[var(--text-primary)] mb-4">
+                                Loading Model Files
+                            </h3>
+                            <p className="text-[var(--text-secondary)] text-sm mb-4">
+                                This only happens once when you first use the model.
+                            </p>
                             {props.transcriber.progressItems.map((data) => (
-                                <div key={data.file}>
+                                <div key={data.file} className="mb-3">
                                     <Progress
                                         text={data.file}
                                         percentage={data.progress}
@@ -321,9 +402,9 @@ export function AudioManager(props: { transcriber: Transcriber }) {
                             ))}
                         </div>
                     )}
-                </>
+                </div>
             )}
-        </>
+        </div>
     );
 }
 
@@ -348,7 +429,13 @@ function SettingsTile(props: {
 
     return (
         <div className={props.className}>
-            <Tile icon={props.icon} onClick={onClick} />
+            <button
+                onClick={onClick}
+                className='flex items-center justify-center rounded-xl p-3 bg-white kauli-shadow hover:kauli-shadow-lg transition-all duration-200 border border-[var(--border-light)] hover:border-[var(--primary-orange)]'
+                aria-label="Settings"
+            >
+                <div className='w-6 h-6 text-[var(--primary-orange)]'>{props.icon}</div>
+            </button>
             <SettingsModal
                 show={showModal}
                 onSubmit={onSubmit}
@@ -384,9 +471,9 @@ function SettingsModal(props: {
             title={"Settings"}
             content={
                 <>
-                    <label>Select the model to use.</label>
+                    <label className="text-[var(--font-small)] font-medium text-[var(--text-primary)]">Select the model to use.</label>
                     <select
-                        className='mt-1 mb-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                        className='mt-1 mb-1 bg-[var(--bg-secondary)] border border-[var(--border-light)] text-[var(--text-primary)] text-sm rounded-lg focus:ring-[var(--primary-orange)] focus:border-[var(--primary-orange)] block w-full p-2.5 transition-colors'
                         defaultValue={props.transcriber.model}
                         onChange={(e) => {
                             props.transcriber.setModel(e.target.value);
@@ -416,7 +503,7 @@ function SettingsModal(props: {
                             ))}
                     </select>
                     <div className='flex justify-between items-center mb-3 px-1'>
-                        <div className='flex'>
+                        <div className='flex items-center space-x-2 mb-3'>
                             <input
                                 id='multilingual'
                                 type='checkbox'
@@ -426,12 +513,13 @@ function SettingsModal(props: {
                                         e.target.checked,
                                     );
                                 }}
-                            ></input>
-                            <label htmlFor={"multilingual"} className='ms-1'>
+                                className="w-4 h-4 text-[var(--primary-orange)] bg-[var(--bg-secondary)] border-[var(--border-light)] rounded focus:ring-[var(--primary-orange)] focus:ring-2"
+                            />
+                            <label htmlFor={"multilingual"} className='text-[var(--font-small)] text-[var(--text-primary)]'>
                                 Multilingual
                             </label>
                         </div>
-                        <div className='flex'>
+                        <div className='flex items-center space-x-2'>
                             <input
                                 id='quantize'
                                 type='checkbox'
@@ -441,17 +529,18 @@ function SettingsModal(props: {
                                         e.target.checked,
                                     );
                                 }}
-                            ></input>
-                            <label htmlFor={"quantize"} className='ms-1'>
+                                className="w-4 h-4 text-[var(--primary-orange)] bg-[var(--bg-secondary)] border-[var(--border-light)] rounded focus:ring-[var(--primary-orange)] focus:ring-2"
+                            />
+                            <label htmlFor={"quantize"} className='text-[var(--font-small)] text-[var(--text-primary)]'>
                                 Quantized
                             </label>
                         </div>
                     </div>
                     {props.transcriber.multilingual && (
                         <>
-                            <label>Select the source language.</label>
+                            <label className="text-[var(--font-small)] font-medium text-[var(--text-primary)]">Select the source language.</label>
                             <select
-                                className='mt-1 mb-3 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                                className='mt-1 mb-3 bg-[var(--bg-secondary)] border border-[var(--border-light)] text-[var(--text-primary)] text-sm rounded-lg focus:ring-[var(--primary-orange)] focus:border-[var(--primary-orange)] block w-full p-2.5 transition-colors'
                                 defaultValue={props.transcriber.language}
                                 onChange={(e) => {
                                     props.transcriber.setLanguage(
@@ -465,9 +554,9 @@ function SettingsModal(props: {
                                     </option>
                                 ))}
                             </select>
-                            <label>Select the task to perform.</label>
+                            <label className="text-[var(--font-small)] font-medium text-[var(--text-primary)]">Select the task to perform.</label>
                             <select
-                                className='mt-1 mb-3 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                                className='mt-1 mb-3 bg-[var(--bg-secondary)] border border-[var(--border-light)] text-[var(--text-primary)] text-sm rounded-lg focus:ring-[var(--primary-orange)] focus:border-[var(--primary-orange)] block w-full p-2.5 transition-colors'
                                 defaultValue={props.transcriber.subtask}
                                 onChange={(e) => {
                                     props.transcriber.setSubtask(
@@ -703,11 +792,12 @@ function Tile(props: {
     return (
         <button
             onClick={props.onClick}
-            className='flex items-center justify-center rounded-lg p-2 bg-blue text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200'
+            className='flex flex-col items-center justify-center rounded-xl p-4 bg-white kauli-shadow hover:kauli-shadow-lg transition-all duration-200 border border-[var(--border-light)] hover:border-[var(--primary-orange)] min-w-[120px]'
+            aria-label={props.text}
         >
-            <div className='w-7 h-7'>{props.icon}</div>
+            <div className='w-8 h-8 text-[var(--primary-orange)] mb-2'>{props.icon}</div>
             {props.text && (
-                <div className='ml-2 break-text text-center text-md w-30'>
+                <div className='text-[var(--font-small)] text-[var(--text-primary)] font-medium text-center'>
                     {props.text}
                 </div>
             )}

@@ -16,13 +16,23 @@ export default function AudioPlayer(props: {
     }, [props.audioUrl]);
 
     return (
-        <div className='flex relative z-10 p-4 w-full'>
+        <div className="bg-white kauli-shadow rounded-xl p-6">
+            <h3 className="text-[var(--font-h3)] font-semibold text-[var(--text-primary)] mb-4">
+                Audio Preview
+            </h3>
             <audio
                 ref={audioPlayer}
                 controls
-                className='w-full h-14 rounded-lg bg-white shadow-xl shadow-black/5 ring-1 ring-slate-700/10'
+                className="w-full h-12 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-light)] focus:border-[var(--primary-orange)] transition-colors"
+                style={{
+                    // Custom audio player styling
+                    '--player-bg': 'var(--bg-secondary)',
+                    '--player-border': 'var(--border-light)',
+                    '--player-accent': 'var(--primary-orange)',
+                } as React.CSSProperties}
             >
                 <source ref={audioSource} type={props.mimeType}></source>
+                Your browser does not support the audio element.
             </audio>
         </div>
     );

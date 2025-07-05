@@ -46,31 +46,27 @@ export default function Modal({
                             leaveFrom='opacity-100 scale-100'
                             leaveTo='opacity-0 scale-95'
                         >
-                            <Dialog.Panel className='w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all'>
+                            <Dialog.Panel className='w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle kauli-shadow-xl transition-all'>
                                 <Dialog.Title
                                     as='h3'
-                                    className='text-lg font-medium leading-6 text-gray-900'
+                                    className='text-[var(--font-h3)] font-semibold text-[var(--text-primary)] mb-4'
                                 >
                                     {title}
                                 </Dialog.Title>
-                                <div className='mt-3 text-sm text-gray-500'>
+                                <div className='text-[var(--font-body)] text-[var(--text-secondary)]'>
                                     {content}
                                 </div>
 
-                                <div className='mt-4 flex flex-row-reverse'>
+                                <div className='mt-6 flex flex-row-reverse space-x-3 space-x-reverse'>
                                     {submitText && (
                                         <button
                                             type='button'
                                             disabled={!submitEnabled}
-                                            className={`inline-flex ml-4 justify-center rounded-md border border-transparent ${
+                                            className={`inline-flex justify-center rounded-lg px-4 py-2 text-sm font-medium transition-all duration-300 ${
                                                 submitEnabled
-                                                    ? "bg-indigo-600"
-                                                    : "bg-grey-300"
-                                            } px-4 py-2 text-sm font-medium text-indigo-100 ${
-                                                submitEnabled
-                                                    ? "hover:bg-indigo-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
-                                                    : ""
-                                            } transition-all duration-300`}
+                                                    ? "bg-[var(--primary-orange)] text-white hover:bg-[var(--primary-orange)]/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-orange)] focus-visible:ring-offset-2"
+                                                    : "bg-[var(--bg-secondary)] text-[var(--text-secondary)] cursor-not-allowed"
+                                            }`}
                                             onClick={onSubmit}
                                         >
                                             {submitText}
@@ -78,7 +74,7 @@ export default function Modal({
                                     )}
                                     <button
                                         type='button'
-                                        className='inline-flex justify-center rounded-md border border-transparent bg-indigo-100 px-4 py-2 text-sm font-medium text-indigo-900 hover:bg-indigo-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 transition-all duration-300'
+                                        className='inline-flex justify-center rounded-lg border border-[var(--border-light)] bg-white px-4 py-2 text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-blue)] focus-visible:ring-offset-2 transition-all duration-300'
                                         onClick={onClose}
                                     >
                                         Close
