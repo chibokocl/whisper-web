@@ -1,9 +1,9 @@
 {
-  "name": "kauli-voice-platform",
+  "name": "kiswahili-health-ai",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Real-time Voice AI for Africa - Professional AI voice platform demo",
+  "description": "Kiswahili Health AI - African Language Understanding Demo for Chanzo Job Application",
   "scripts": {
     "dev": "vite",
     "clean": "rm -rf node_modules/ dist/",
@@ -12,7 +12,8 @@
     "lint": "eslint src/**/*.{js,jsx,ts,tsx,json}",
     "lint:fix": "eslint --fix src/**/*.{js,jsx,ts,tsx,json}",
     "format": "prettier --write src/**/*.{js,jsx,ts,tsx,css,md,json} --config ./.prettierrc",
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "deploy-frontend": "npm run build && surge ./dist kiswahili-health-ai.surge.sh"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.13",

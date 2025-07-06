@@ -1,3 +1,6 @@
+/* Import Kiswahili Health AI specific styles */
+@import './kiswahili.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

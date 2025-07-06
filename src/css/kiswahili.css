@@ -1,0 +1,277 @@
+/* Kiswahili Health AI Specific Styles */
+
+/* Material 3 Theme Colors */
+:root {
+  --md-sys-color-primary: #6750a4;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #eaddff;
+  --md-sys-color-on-primary-container: #21005d;
+  --md-sys-color-secondary: #625b71;
+  --md-sys-color-on-secondary: #ffffff;
+  --md-sys-color-secondary-container: #e8def8;
+  --md-sys-color-on-secondary-container: #1d192b;
+  --md-sys-color-tertiary: #7d5260;
+  --md-sys-color-on-tertiary: #ffffff;
+  --md-sys-color-tertiary-container: #ffd8e4;
+  --md-sys-color-on-tertiary-container: #31111d;
+  --md-sys-color-error: #ba1a1a;
+  --md-sys-color-on-error: #ffffff;
+  --md-sys-color-error-container: #ffdad6;
+  --md-sys-color-on-error-container: #410002;
+  --md-sys-color-background: #fffbfe;
+  --md-sys-color-on-background: #1c1b1f;
+  --md-sys-color-surface: #fffbfe;
+  --md-sys-color-on-surface: #1c1b1f;
+  --md-sys-color-surface-variant: #e7e0ec;
+  --md-sys-color-on-surface-variant: #49454f;
+  --md-sys-color-outline: #79747e;
+  --md-sys-color-outline-variant: #cac4d0;
+}
+
+/* Health-specific Material 3 overrides */
+
+md-filled-button {
+  --md-filled-button-container-color: var(--md-sys-color-primary);
+  --md-filled-button-label-text-color: var(--md-sys-color-on-primary);
+}
+
+md-outlined-button {
+  --md-outlined-button-outline-color: var(--md-sys-color-outline);
+  --md-outlined-button-label-text-color: var(--md-sys-color-on-surface);
+}
+
+md-outlined-text-field {
+  --md-outlined-text-field-outline-color: var(--md-sys-color-outline);
+  --md-outlined-text-field-label-text-color: var(--md-sys-color-on-surface-variant);
+}
+
+
+
+/* Voice-specific styles */
+.voice-active {
+  animation: voice-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes voice-pulse {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+  }
+  50% { 
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+  }
+}
+
+.voice-listening {
+  background: linear-gradient(45deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.voice-speaking {
+  background: linear-gradient(45deg, #10b981, #059669);
+  color: white;
+}
+
+/* Material 3 metric cards */
+.metric-card {
+  @apply p-4 rounded-lg transition-all duration-200 hover:shadow-md;
+  border-radius: 16px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Typing animation */
+.typing-dots {
+  display: flex;
+  align-items: center;
+}
+
+.typing-dots span {
+  height: 8px;
+  width: 8px;
+  background: #6b7280;
+  border-radius: 50%;
+  display: inline-block;
+  margin: 0 2px;
+  animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+.typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+  0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* Message animations */
+.message {
+  @apply animate-slide-up;
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+/* Health-specific color scheme */
+.health-primary {
+  @apply bg-blue-500 text-white;
+}
+
+.health-secondary {
+  @apply bg-green-500 text-white;
+}
+
+.health-accent {
+  @apply bg-purple-500 text-white;
+}
+
+/* Doctor avatar styling */
+.doctor-avatar {
+  @apply w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl;
+}
+
+/* Chat message styling */
+.chat-message-user {
+  @apply bg-blue-500 text-white rounded-lg px-4 py-2 max-w-xs lg:max-w-md;
+  border-radius: 18px 18px 4px 18px;
+}
+
+.chat-message-doctor {
+  @apply bg-white text-gray-900 rounded-lg px-4 py-2 max-w-xs lg:max-w-md shadow-sm;
+  border-radius: 18px 18px 18px 4px;
+}
+
+/* Quick response chips */
+.quick-response-chip {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.quick-response-chip:hover {
+  transform: translateY(-1px);
+}
+
+/* Metrics progress bars */
+.metric-progress {
+  @apply w-full bg-gray-200 rounded-full h-2;
+  border-radius: 4px;
+}
+
+.metric-progress-fill {
+  @apply h-2 rounded-full transition-all duration-300;
+  border-radius: 4px;
+}
+
+/* Performance indicators */
+.performance-excellent {
+  @apply text-green-600;
+}
+
+.performance-good {
+  @apply text-yellow-600;
+}
+
+.performance-poor {
+  @apply text-red-600;
+}
+
+/* Status indicators */
+.status-live {
+  @apply bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.status-offline {
+  @apply bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium;
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 768px) {
+  .metric-card {
+    @apply p-3;
+  }
+  
+  .chat-message-user,
+  .chat-message-doctor {
+    @apply max-w-full;
+  }
+  
+
+}
+
+/* Loading states */
+.loading-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+/* Fade in animation */
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Voice status indicators */
+.voice-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 8px;
+  background: var(--md-sys-color-surface-variant);
+  margin-top: 1rem;
+}
+
+.voice-status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: voice-status-pulse 2s infinite;
+}
+
+.voice-status-indicator.listening {
+  background: #ef4444;
+}
+
+.voice-status-indicator.speaking {
+  background: #10b981;
+}
+
+@keyframes voice-status-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Material 3 elevation shadows */
+.material-elevation-1 {
+  box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+}
+
+.material-elevation-2 {
+  box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+}
+
+.material-elevation-3 {
+  box-shadow: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.30);
+} 
