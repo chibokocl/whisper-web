@@ -372,9 +372,53 @@ body {
   border-color: var(--kauli-orange);
 }
 
-.language-flag {
+.language-icon {
   font-size: 1.5rem;
   margin-right: 1rem;
+  display: flex;
+  align-items: center;
+  color: var(--kauli-orange);
+}
+
+/* Material Design Icon Styling */
+md-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+md-icon.language-icon {
+  color: var(--kauli-orange);
+  font-size: 1.5rem;
+  width: 2rem;
+  height: 2rem;
+}
+
+md-icon:hover {
+  color: var(--kauli-orange);
+}
+
+/* Material Design Button Styling */
+md-outlined-button {
+  --md-sys-color-primary: var(--kauli-orange);
+  --md-sys-color-on-primary: white;
+  --md-sys-color-outline: var(--border-light);
+}
+
+md-filled-button {
+  --md-sys-color-primary: var(--kauli-orange);
+  --md-sys-color-on-primary: white;
+}
+
+/* Material Design Text Field Styling */
+md-outlined-text-field {
+  --md-sys-color-primary: var(--kauli-orange);
+  --md-sys-color-outline: var(--border-light);
+  --md-sys-color-on-surface: var(--text-primary);
 }
 
 /* AI Analysis Section */

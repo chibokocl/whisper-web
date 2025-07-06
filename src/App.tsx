@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import "./css/kauli.css";
 import { Header } from "./components/Header";
-import { MetricsDashboard } from "./components/MetricsDashboard";
+import MetricsDashboard from "./components/MetricsDashboard";
 import { LanguageSelector } from "./components/LanguageSelector";
 import { RecordingInterface } from "./components/RecordingInterface";
 import { AIAnalysis } from "./components/AIAnalysis";
@@ -9,6 +10,32 @@ import { UseCaseSelector } from "./components/UseCaseSelector";
 import { useTranscriber } from "./hooks/useTranscriber";
 import { AudioManager } from "./components/AudioManager";
 import Transcript from "./components/Transcript";
+import ConversationManager from "./components/ConversationManager";
+import { 
+  africanLanguages, 
+  processAfricanLanguageText, 
+  surveyGenerator, 
+  speakQuestion, 
+  stopSpeaking 
+} from "./utils/africanLanguages";
+
+interface ConversationTurn {
+  id: number;
+  text: string;
+  language: string;
+  timestamp: Date;
+  context: string;
+  confidence: number;
+  translation?: string;
+  insights?: string[];
+}
+
+interface Metrics {
+  latency: number;
+  confidence: number;
+  wer: number;
+  activeSession: boolean;
+}
 
 function App() {
     const transcriber = useTranscriber();
@@ -19,6 +46,71 @@ function App() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [audioUrl, setAudioUrl] = useState<string | undefined>(undefined);
     const [showAIAnalysis, setShowAIAnalysis] = useState(false);
+    
+    // New state for African language features
+    const [conversationHistory, setConversationHistory] = useState<ConversationTurn[]>([]);
+    const [detectedContext, setDetectedContext] = useState<string | null>(null);
+    const [generatedQuestions, setGeneratedQuestions] = useState<any[]>([]);
+    const [metrics, setMetrics] = useState<Metrics>({
+      latency: 0,
+      confidence: 0,
+      wer: 12.3,
+      activeSession: false
+    });
+
+    // Enhanced transcription handler with African language processing
+    const onTranscribe = useCallback(async (text: string) => {
+        const startTime = Date.now();
+        
+        // Set processing state
+        setIsProcessing(true);
+        
+        try {
+            // Process the text through our African language pipeline
+            const processingResult = await processAfricanLanguageText(text, selectedLanguage);
+            
+            // Update conversation history
+            const newTurn: ConversationTurn = {
+                id: Date.now(),
+                text: text,
+                language: selectedLanguage,
+                timestamp: new Date(),
+                context: processingResult.context,
+                confidence: processingResult.confidence,
+                translation: processingResult.translation,
+                insights: processingResult.insights
+            };
+            
+            setConversationHistory(prev => [...prev, newTurn]);
+            
+            // Generate contextual survey questions
+            const questions = surveyGenerator.generate(text, selectedLanguage, processingResult.context);
+            setGeneratedQuestions(questions);
+            
+            // Update detected context
+            setDetectedContext(processingResult.context);
+            
+            // Update metrics
+            const endTime = Date.now();
+            setMetrics(prev => ({
+                ...prev,
+                latency: (endTime - startTime) / 1000,
+                confidence: processingResult.confidence,
+                activeSession: true
+            }));
+            
+            // Speak generated questions if TTS enabled
+            if (questions.length > 0) {
+                speakQuestion(questions[0].text, selectedLanguage);
+            }
+            
+        } catch (error) {
+            console.error('Error processing African language text:', error);
+        } finally {
+            setIsProcessing(false);
+            setShowAIAnalysis(true);
+        }
+    }, [selectedLanguage]);
 
     // Keyboard shortcuts
     useEffect(() => {
@@ -36,6 +128,7 @@ function App() {
             // Escape to close modals
             if (event.code === 'Escape') {
                 setShowHelp(false);
+                stopSpeaking();
             }
             
             // Ctrl/Cmd + K for help
@@ -54,18 +147,58 @@ function App() {
         setIsProcessing(false);
         setAudioUrl(undefined);
         setShowAIAnalysis(false);
+        stopSpeaking();
     };
 
     const handleStopRecording = () => {
         setIsRecording(false);
-        setIsProcessing(true);
         
-        // Simulate processing delay
+        // Simulate processing delay and transcription
         setTimeout(() => {
-            setIsProcessing(false);
+            // Simulate transcription result
+            const sampleTexts = {
+                sw: "Habari, nina maumivu ya tumbo na homa",
+                yo: "Bawo ni, mo ni ibeere diẹ nipa ilera rẹ",
+                am: "ሰላም፣ ስለ ጤናዎ ጥቂት ጥያቄዎች አሉኝ",
+                ha: "Sannu, ina da wasu tambayoyi game da lafiyar ku",
+                ig: "Ndewo, enwere m ajụjụ ole na ole banyere ahụ ike gị",
+                zu: "Sawubona, nginemibuzo embalwa mayelana nempilo yakho"
+            };
+            
+            const sampleText = sampleTexts[selectedLanguage as keyof typeof sampleTexts] || sampleTexts.sw;
+            onTranscribe(sampleText);
+            
             setAudioUrl('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT');
-            setShowAIAnalysis(true);
-        }, 3000);
+        }, 2000);
+    };
+
+    const handleClearHistory = () => {
+        setConversationHistory([]);
+        setGeneratedQuestions([]);
+        setDetectedContext(null);
+        setMetrics(prev => ({ ...prev, activeSession: false }));
+    };
+
+    const handleExportConversation = () => {
+        const exportData = {
+            conversation: conversationHistory,
+            metadata: {
+                language: selectedLanguage,
+                useCase: selectedUseCase,
+                timestamp: new Date().toISOString(),
+                metrics: metrics
+            }
+        };
+        
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `kauli-conversation-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     };
 
     return (
@@ -77,8 +210,10 @@ function App() {
             <main className="container mx-auto px-4 py-8 max-w-7xl">
                 {/* Metrics Dashboard */}
                 <section className="mb-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Live Performance Metrics</h2>
-                    <MetricsDashboard />
+                    <MetricsDashboard 
+                        metrics={metrics}
+                        conversationHistory={conversationHistory}
+                    />
                 </section>
 
                 {/* Two Column Layout */}
@@ -106,11 +241,20 @@ function App() {
                             audioUrl={audioUrl}
                         />
 
-                        {/* AI Analysis */}
+                        {/* AI Analysis with African language features */}
                         <AIAnalysis 
-                            transcription="Sample transcription text for AI analysis"
+                            transcription={conversationHistory.length > 0 ? conversationHistory[conversationHistory.length - 1].text : ""}
                             language={selectedLanguage}
                             isVisible={showAIAnalysis}
+                            detectedContext={detectedContext}
+                            generatedQuestions={generatedQuestions}
+                        />
+
+                        {/* Conversation Manager */}
+                        <ConversationManager 
+                            conversationHistory={conversationHistory}
+                            onClearHistory={handleClearHistory}
+                            onExportConversation={handleExportConversation}
                         />
                     </div>
 
@@ -204,12 +348,6 @@ function App() {
                                 <kbd className="bg-gray-100 px-2 py-1 rounded">Ctrl+K</kbd>
                             </div>
                         </div>
-                        <div className="mt-6 pt-4 border-t border-gray-200">
-                            <h4 className="font-semibold text-gray-900 mb-2">Supported Languages</h4>
-                            <p className="text-sm text-gray-600">
-                                Kiswahili, Yorùbá, Hausa, Amharic, Igbo, isiZulu, and 95+ more African languages
-                            </p>
-                        </div>
                         <button 
                             onClick={() => setShowHelp(false)}
                             className="mt-6 w-full bg-orange-600 text-white py-2 px-4 rounded-lg hover:bg-orange-700 transition-colors"
@@ -219,11 +357,6 @@ function App() {
                     </div>
                 </div>
             )}
-
-            {/* Keyboard shortcut hint */}
-            <div className="fixed bottom-4 right-4 bg-white shadow-lg rounded-lg px-3 py-2 text-xs text-gray-600 opacity-75 hover:opacity-100 transition-opacity">
-                Press <kbd className="bg-gray-100 px-1 rounded">Ctrl+K</kbd> for help
-            </div>
         </div>
     );
 }

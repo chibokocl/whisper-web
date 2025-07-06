@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef } from "react";
+import '@material/web/icon/icon.js';
+import '@material/web/button/filled-button.js';
+import '@material/web/button/outlined-button.js';
 
 import { formatAudioTimestamp } from "../utils/AudioUtils";
 import { webmFixDuration } from "../utils/BlobFix";
@@ -120,7 +123,7 @@ export default function AudioRecorder(props: {
 
     return (
         <div className='flex flex-col justify-center items-center'>
-            <button
+            <md-filled-button
                 type='button'
                 className={`m-2 inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 transition-all duration-200 ${
                     recording
@@ -129,10 +132,13 @@ export default function AudioRecorder(props: {
                 }`}
                 onClick={handleToggleRecording}
             >
+                <md-icon className="mr-2">
+                    {recording ? 'stop' : 'mic'}
+                </md-icon>
                 {recording
                     ? `Stop Recording (${formatAudioTimestamp(duration)})`
                     : "Start Recording"}
-            </button>
+            </md-filled-button>
 
             {recordedBlob && (
                 <audio className='w-full' ref={audioRef} controls>

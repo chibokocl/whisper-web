@@ -6,27 +6,27 @@
 ![Languages](https://img.shields.io/badge/Languages-95%2B%20African-blue?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Live-green?style=for-the-badge)
 
-## 🌍 Overview
+## Overview
 
 Kauli Voice Platform is a professional AI voice platform demo that showcases real-time speech processing capabilities for African languages. Built for enterprise use cases including health surveys, agricultural advisory, education assessment, and community outreach.
 
-## ✨ Features
+## Features
 
-### 🎯 Core Capabilities
+### Core Capabilities
 - **Real-time Speech Recognition** - Instant transcription in 95+ African languages
 - **AI-Powered Analysis** - Intelligent insights and survey generation
 - **Professional Interface** - Enterprise-grade UI with live metrics dashboard
 - **Telephony Integration** - SIP support with GSM optimization
 - **Multi-language Support** - Kiswahili, Yorùbá, Hausa, Amharic, and more
 
-### 📊 Live Performance Metrics
+### Live Performance Metrics
 - Average Latency: 1.2s
 - Confidence Score: 94%
 - Word Error Rate: 12.3%
 - Active Calls: 2,347
 - System Uptime: 99.9%
 
-### 🏥 Use Case Scenarios
+### Use Case Scenarios
 - **Health Survey** - Rural health assessment in local languages
 - **Agricultural Advisory** - Crop management guidance for farmers
 - **Education Assessment** - Learning evaluation in native languages
@@ -34,7 +34,7 @@ Kauli Voice Platform is a professional AI voice platform demo that showcases rea
 - **Community Outreach** - Public service announcements and surveys
 - **Research & Data Collection** - Academic and field research support
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Node.js 16+ 
@@ -64,7 +64,7 @@ npm run build
 npm run preview
 ```
 
-## 🎮 Usage
+## Usage
 
 ### Keyboard Shortcuts
 - **Space** - Start/Stop recording
@@ -79,26 +79,26 @@ npm run preview
 5. Stop recording to process with AI
 6. View generated survey questions and insights
 
-## 🌐 Supported Languages
+## Supported Languages
 
 ### Primary Languages
-- **Kiswahili** 🇹🇿 - East Africa
-- **Yorùbá** 🇳🇬 - West Africa  
-- **Hausa** 🇳🇬 - West Africa
-- **Amharic** 🇪🇹 - East Africa
-- **Igbo** 🇳🇬 - West Africa
-- **isiZulu** 🇿🇦 - Southern Africa
+- **Kiswahili** - East Africa
+- **Yorùbá** - West Africa  
+- **Hausa** - West Africa
+- **Amharic** - East Africa
+- **Igbo** - West Africa
+- **isiZulu** - Southern Africa
 
 ### Additional Languages
 - isiXhosa, Somali, Afrikaans, Shona, and 85+ more African languages
 
-## 🏗️ Architecture
+## Architecture
 
 ### Frontend
 - **React 18** - Modern UI framework
 - **TypeScript** - Type-safe development
 - **Tailwind CSS** - Utility-first styling
-- **Lucide React** - Beautiful icons
+- **Material Design Web Components** - Professional UI components
 - **Vite** - Fast build tool
 
 ### AI Processing
@@ -111,7 +111,7 @@ npm run preview
 - **GSM Optimization** - Mobile network support
 - **Auto-scaling** - Dynamic resource allocation
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 src/
@@ -128,7 +128,7 @@ src/
 └── css/                # Styling and design system
 ```
 
-## 🎨 Design System
+## Design System
 
 ### Color Palette
 - **Primary Orange** - #FF6B35
@@ -141,7 +141,12 @@ src/
 - **Font Family** - Inter
 - **Weights** - 300, 400, 500, 600, 700, 800
 
-## 🔧 Development
+### Material Design Integration
+- **Material Web Components** - Professional UI components
+- **Material Icons** - Consistent iconography
+- **Material Theming** - Custom color schemes
+
+## Development
 
 ### Available Scripts
 ```bash
@@ -158,7 +163,7 @@ npm run format       # Format code with Prettier
 - **Prettier** - Code formatting
 - **TypeScript** - Type checking
 
-## 🌟 Demo Features
+## Demo Features
 
 ### Simulated AI Processing
 - Real-time metric updates
@@ -172,7 +177,7 @@ npm run format       # Format code with Prettier
 - Performance metrics
 - Telephony integration status
 
-## 📈 Performance
+## Performance
 
 ### Optimizations
 - Client-side AI processing
@@ -186,7 +191,7 @@ npm run format       # Format code with Prettier
 - Safari 14+
 - Edge 90+
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -194,17 +199,18 @@ npm run format       # Format code with Prettier
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **Transformers.js** - Client-side AI processing
 - **Whisper** - Speech recognition model
+- **Material Design** - Professional UI components
 - **African Language Community** - Language expertise and feedback
 
-## 📞 Support
+## Support
 
 - **Documentation** - [docs.kauli-voice.com](https://docs.kauli-voice.com)
 - **API Reference** - [api.kauli-voice.com](https://api.kauli-voice.com)
@@ -213,4 +219,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Made with ❤️ for Africa by Kauli Voice Platform**
+**Made with Material Design for Africa by Kauli Voice Platform**
