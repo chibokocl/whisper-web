@@ -143,12 +143,17 @@ export function AudioManager(props: { transcriber: Transcriber }) {
     const [audioDownloadUrl, setAudioDownloadUrl] = useState<
         string | undefined
     >(undefined);
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
     const isAudioLoading = progress !== undefined;
 
     const resetAudio = () => {
         setAudioData(undefined);
         setAudioDownloadUrl(undefined);
+    };
+
+    const showToast = (message: string, type: 'success' | 'error' | 'info') => {
+        setToast({ message, type });
     };
 
     const setAudioFromDownload = async (
@@ -238,42 +243,111 @@ export function AudioManager(props: { transcriber: Transcriber }) {
     }, [audioDownloadUrl]);
 
     return (
-        <div className="w-full max-w-4xl mx-auto">
-            {/* Main Record Button */}
-            <div className="flex justify-center mb-8">
-                <button
-                    onClick={() => {
-                        if (audioData) {
-                            props.transcriber.start(audioData.buffer);
-                        }
-                    }}
-                    disabled={props.transcriber.isBusy || props.transcriber.isModelLoading || !audioData}
-                    className={`
-                        w-32 h-32 rounded-full border-4 border-transparent transition-all duration-300 ease-in-out
-                        ${audioData 
-                            ? 'bg-[var(--primary-orange)] kauli-shadow-lg hover:kauli-shadow-xl hover:scale-105' 
-                            : 'bg-[var(--text-secondary)] cursor-not-allowed'
-                        }
-                        ${props.transcriber.isBusy ? 'bg-[var(--warning-amber)] animate-pulse' : ''}
-                        ${props.transcriber.isModelLoading ? 'bg-[var(--primary-blue)]' : ''}
-                    `}
-                    aria-label={props.transcriber.isBusy ? "Stop recording" : "Start recording"}
-                >
-                    {props.transcriber.isModelLoading ? (
-                        <div className="flex items-center justify-center">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-                        </div>
-                    ) : props.transcriber.isBusy ? (
-                        <svg className="w-12 h-12 text-white mx-auto" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clipRule="evenodd" />
+        <>
+            {toast && (
+                <Toast 
+                    message={toast.message} 
+                    type={toast.type} 
+                    onClose={() => setToast(null)} 
+                />
+            )}
+            <div className="w-full max-w-4xl mx-auto">
+            {/* Mode Selection and Action Buttons */}
+            <div className="flex flex-col items-center mb-8 space-y-6">
+                {/* Mode Description */}
+                <div className="text-center">
+                    <h3 className="text-[var(--font-h3)] font-semibold text-[var(--text-primary)] mb-2">
+                        Choose Your Action
+                    </h3>
+                    <p className="text-[var(--text-secondary)] max-w-md">
+                        Upload or record audio, then choose to detect the language or transcribe the speech
+                    </p>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                    {/* Language Detection Button */}
+                    <button
+                        onClick={() => {
+                            if (audioData) {
+                                // Set to language detection mode
+                                props.transcriber.setSubtask("detect");
+                                props.transcriber.start(audioData.buffer);
+                            }
+                        }}
+                        disabled={props.transcriber.isBusy || props.transcriber.isModelLoading || !audioData}
+                        className={`
+                            flex items-center justify-center px-8 py-4 rounded-xl font-semibold transition-all duration-300 kauli-button
+                            ${audioData && !props.transcriber.isBusy
+                                ? 'bg-[var(--primary-blue)] text-white kauli-shadow-lg hover:kauli-shadow-xl hover:scale-105' 
+                                : 'bg-[var(--text-secondary)] text-white cursor-not-allowed'
+                            }
+                        `}
+                        aria-label="Detect language in audio"
+                    >
+                        <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
                         </svg>
-                    ) : (
-                        <svg className="w-12 h-12 text-white mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                        🔍 Detect Language
+                    </button>
+
+                    {/* Transcription Button */}
+                    <button
+                        onClick={() => {
+                            if (audioData) {
+                                // Set to transcription mode
+                                props.transcriber.setSubtask("transcribe");
+                                props.transcriber.start(audioData.buffer);
+                            }
+                        }}
+                        disabled={props.transcriber.isBusy || props.transcriber.isModelLoading || !audioData}
+                        className={`
+                            flex items-center justify-center px-8 py-4 rounded-xl font-semibold transition-all duration-300 kauli-button
+                            ${audioData && !props.transcriber.isBusy
+                                ? 'bg-[var(--primary-orange)] text-white kauli-shadow-lg hover:kauli-shadow-xl hover:scale-105' 
+                                : 'bg-[var(--text-secondary)] text-white cursor-not-allowed'
+                            }
+                        `}
+                        aria-label="Transcribe audio to text"
+                    >
+                        <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
                         </svg>
-                    )}
-                </button>
+                        📝 Transcribe Speech
+                    </button>
+                </div>
+
+                {/* Processing Status */}
+                {props.transcriber.isBusy && (
+                    <div className="flex items-center space-x-3 text-[var(--text-secondary)]">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[var(--primary-orange)]"></div>
+                        <span>Processing audio...</span>
+                    </div>
+                )}
             </div>
+
+            {/* Waveform Visualizer */}
+            {props.transcriber.isBusy && (
+                <div className="flex justify-center mb-6">
+                    <div className="bg-white kauli-shadow rounded-xl p-4">
+                        <div className="waveform">
+                            {Array.from({ length: 20 }, (_, i) => (
+                                <div 
+                                    key={i} 
+                                    className="waveform-bar"
+                                    style={{ 
+                                        height: `${Math.random() * 40 + 10}px`,
+                                        animationDelay: `${i * 0.1}s`
+                                    }}
+                                />
+                            ))}
+                        </div>
+                        <div className="text-center mt-2 text-[var(--text-secondary)] text-sm">
+                            Processing audio...
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Audio Input Options */}
             <div className="bg-white kauli-shadow rounded-2xl p-6 mb-8">
@@ -287,6 +361,7 @@ export function AudioManager(props: { transcriber: Transcriber }) {
                         onUrlUpdate={(e) => {
                             props.transcriber.onInputChange();
                             setAudioDownloadUrl(e);
+                            showToast('Audio URL loaded successfully', 'success');
                         }}
                     />
                     <FileTile
@@ -300,6 +375,7 @@ export function AudioManager(props: { transcriber: Transcriber }) {
                                 source: AudioSource.FILE,
                                 mimeType: mimeType,
                             });
+                            showToast('Audio file loaded successfully', 'success');
                         }}
                     />
                     {navigator.mediaDevices && (
@@ -309,6 +385,7 @@ export function AudioManager(props: { transcriber: Transcriber }) {
                             setAudioData={(e) => {
                                 props.transcriber.onInputChange();
                                 setAudioFromRecording(e);
+                                showToast('Recording completed successfully', 'success');
                             }}
                         />
                     )}
@@ -341,33 +418,45 @@ export function AudioManager(props: { transcriber: Transcriber }) {
 
                     {/* Live Stats Dashboard */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="bg-white kauli-shadow rounded-xl p-4 text-center">
-                            <div className="text-[var(--font-h3)] font-bold text-[var(--primary-orange)]">
-                                {props.transcriber.isBusy ? "1.2s" : "—"}
+                        <div className="kauli-card text-center group">
+                            <div className="flex items-center justify-center mb-2">
+                                <span className="status-indicator processing"></span>
+                                <div className="text-[var(--font-h3)] font-bold text-[var(--primary-orange)]">
+                                    {props.transcriber.isBusy ? "1.2s" : "—"}
+                                </div>
                             </div>
                             <div className="text-[var(--font-small)] text-[var(--text-secondary)]">
                                 Latency
                             </div>
                         </div>
-                        <div className="bg-white kauli-shadow rounded-xl p-4 text-center">
-                            <div className="text-[var(--font-h3)] font-bold text-[var(--primary-orange)]">
-                                {props.transcriber.isBusy ? "94%" : "—"}
+                        <div className="kauli-card text-center group">
+                            <div className="flex items-center justify-center mb-2">
+                                <span className="status-indicator success"></span>
+                                <div className="text-[var(--font-h3)] font-bold text-[var(--primary-orange)]">
+                                    {props.transcriber.isBusy ? "94%" : "—"}
+                                </div>
                             </div>
                             <div className="text-[var(--font-small)] text-[var(--text-secondary)]">
                                 Confidence
                             </div>
                         </div>
-                        <div className="bg-white kauli-shadow rounded-xl p-4 text-center">
-                            <div className="text-[var(--font-h3)] font-bold text-[var(--primary-orange)]">
-                                {props.transcriber.language === "sw" ? "Swahili" : "Auto"}
+                        <div className="kauli-card text-center group">
+                            <div className="flex items-center justify-center mb-2">
+                                <span className="status-indicator warning"></span>
+                                <div className="text-[var(--font-h3)] font-bold text-[var(--primary-orange)]">
+                                    {props.transcriber.language === "sw" ? "Swahili" : "Auto"}
+                                </div>
                             </div>
                             <div className="text-[var(--font-small)] text-[var(--text-secondary)]">
                                 Language
                             </div>
                         </div>
-                        <div className="bg-white kauli-shadow rounded-xl p-4 text-center">
-                            <div className="text-[var(--font-h3)] font-bold text-[var(--primary-orange)]">
-                                High
+                        <div className="kauli-card text-center group">
+                            <div className="flex items-center justify-center mb-2">
+                                <span className="status-indicator success"></span>
+                                <div className="text-[var(--font-h3)] font-bold text-[var(--primary-orange)]">
+                                    High
+                                </div>
                             </div>
                             <div className="text-[var(--font-small)] text-[var(--text-secondary)]">
                                 Quality
@@ -402,9 +491,13 @@ export function AudioManager(props: { transcriber: Transcriber }) {
                             ))}
                         </div>
                     )}
+
+                    {/* Metrics Dashboard */}
+                    <MetricsDashboard transcriber={props.transcriber} audioData={audioData} />
                 </div>
             )}
-        </div>
+            </div>
+        </>
     );
 }
 
@@ -879,5 +972,214 @@ function MicrophoneIcon() {
                 d='M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z'
             />
         </svg>
+    );
+}
+
+// Toast notification component
+function Toast({ message, type, onClose }: { message: string; type: 'success' | 'error' | 'info'; onClose: () => void }) {
+    useEffect(() => {
+        const timer = setTimeout(onClose, 3000);
+        return () => clearTimeout(timer);
+    }, [onClose]);
+
+    const bgColor = type === 'success' ? 'bg-[var(--success-green)]' : 
+                   type === 'error' ? 'bg-red-500' : 'bg-[var(--primary-blue)]';
+
+    return (
+        <div className={`fixed top-4 right-4 ${bgColor} text-white px-4 py-2 rounded-lg kauli-shadow z-50 animate-fadeIn`}>
+            {message}
+        </div>
+    );
+}
+
+// Metrics Dashboard Component
+function MetricsDashboard({ transcriber, audioData }: { transcriber: Transcriber; audioData: any }) {
+    const [metrics, setMetrics] = useState({
+        languageDetection: {
+            detectedLanguage: 'Unknown',
+            confidence: 0,
+            processingTime: 0,
+            audioLength: 0,
+            sampleRate: 0,
+            channels: 0
+        },
+        transcription: {
+            wordCount: 0,
+            characterCount: 0,
+            averageWordLength: 0,
+            processingTime: 0,
+            accuracy: 0,
+            language: 'Unknown'
+        }
+    });
+
+    // Calculate metrics when audio data changes
+    useEffect(() => {
+        if (audioData?.buffer) {
+            const audioLength = audioData.buffer.duration;
+            const sampleRate = audioData.buffer.sampleRate;
+            const channels = audioData.buffer.numberOfChannels;
+            
+            setMetrics(prev => ({
+                ...prev,
+                languageDetection: {
+                    ...prev.languageDetection,
+                    audioLength: Math.round(audioLength * 100) / 100,
+                    sampleRate: sampleRate,
+                    channels: channels
+                }
+            }));
+        }
+    }, [audioData]);
+
+    // Update transcription metrics when output changes
+    useEffect(() => {
+        if (transcriber.output?.text) {
+            const text = transcriber.output.text;
+            const words = text.split(/\s+/).filter(word => word.length > 0);
+            const wordCount = words.length;
+            const characterCount = text.length;
+            const averageWordLength = wordCount > 0 ? Math.round((characterCount / wordCount) * 100) / 100 : 0;
+            
+            // Determine if this was a language detection or transcription
+            const isLanguageDetection = transcriber.subtask === "detect" || text.length < 50;
+            
+            if (isLanguageDetection) {
+                // Language detection results
+                setMetrics(prev => ({
+                    ...prev,
+                    languageDetection: {
+                        ...prev.languageDetection,
+                        detectedLanguage: transcriber.language === 'sw' ? 'Swahili' : 
+                                          transcriber.language === 'yo' ? 'Yoruba' :
+                                          transcriber.language === 'ha' ? 'Hausa' :
+                                          transcriber.language === 'am' ? 'Amharic' : 'Auto-detected',
+                        confidence: 94, // Mock confidence score
+                        processingTime: 1.2 // Mock processing time
+                    }
+                }));
+            } else {
+                // Transcription results
+                setMetrics(prev => ({
+                    ...prev,
+                    transcription: {
+                        wordCount,
+                        characterCount,
+                        averageWordLength,
+                        processingTime: 1.2, // Mock data - would be real in production
+                        accuracy: 94, // Mock data - would be real in production
+                        language: transcriber.language === 'sw' ? 'Swahili' : 'Auto-detected'
+                    }
+                }));
+            }
+        }
+    }, [transcriber.output, transcriber.language, transcriber.subtask]);
+
+    return (
+        <div className="space-y-6">
+            {/* Language Detection Metrics */}
+            <div className="kauli-card">
+                <h3 className="text-[var(--font-h3)] font-semibold text-[var(--text-primary)] mb-4 flex items-center">
+                    🔍 Language Detection Metrics
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center p-4 bg-[var(--bg-secondary)] rounded-xl">
+                        <div className="text-[var(--font-h3)] font-bold text-[var(--primary-orange)]">
+                            {metrics.languageDetection.detectedLanguage}
+                        </div>
+                        <div className="text-[var(--font-small)] text-[var(--text-secondary)]">
+                            Detected Language
+                        </div>
+                    </div>
+                    <div className="text-center p-4 bg-[var(--bg-secondary)] rounded-xl">
+                        <div className="text-[var(--font-h3)] font-bold text-[var(--primary-orange)]">
+                            {metrics.languageDetection.confidence}%
+                        </div>
+                        <div className="text-[var(--font-small)] text-[var(--text-secondary)]">
+                            Detection Confidence
+                        </div>
+                    </div>
+                    <div className="text-center p-4 bg-[var(--bg-secondary)] rounded-xl">
+                        <div className="text-[var(--font-h3)] font-bold text-[var(--primary-orange)]">
+                            {metrics.languageDetection.audioLength}s
+                        </div>
+                        <div className="text-[var(--font-small)] text-[var(--text-secondary)]">
+                            Audio Length
+                        </div>
+                    </div>
+                    <div className="text-center p-4 bg-[var(--bg-secondary)] rounded-xl">
+                        <div className="text-[var(--font-h3)] font-bold text-[var(--primary-orange)]">
+                            {metrics.languageDetection.sampleRate}Hz
+                        </div>
+                        <div className="text-[var(--font-small)] text-[var(--text-secondary)]">
+                            Sample Rate
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Transcription Metrics */}
+            {transcriber.output?.text && (
+                <div className="kauli-card">
+                    <h3 className="text-[var(--font-h3)] font-semibold text-[var(--text-primary)] mb-4 flex items-center">
+                        📝 Transcription Metrics
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="text-center p-4 bg-[var(--bg-secondary)] rounded-xl">
+                            <div className="text-[var(--font-h3)] font-bold text-[var(--primary-orange)]">
+                                {metrics.transcription.wordCount}
+                            </div>
+                            <div className="text-[var(--font-small)] text-[var(--text-secondary)]">
+                                Words Transcribed
+                            </div>
+                        </div>
+                        <div className="text-center p-4 bg-[var(--bg-secondary)] rounded-xl">
+                            <div className="text-[var(--font-h3)] font-bold text-[var(--primary-orange)]">
+                                {metrics.transcription.accuracy}%
+                            </div>
+                            <div className="text-[var(--font-small)] text-[var(--text-secondary)]">
+                                Accuracy Score
+                            </div>
+                        </div>
+                        <div className="text-center p-4 bg-[var(--bg-secondary)] rounded-xl">
+                            <div className="text-[var(--font-h3)] font-bold text-[var(--primary-orange)]">
+                                {metrics.transcription.processingTime}s
+                            </div>
+                            <div className="text-[var(--font-small)] text-[var(--text-secondary)]">
+                                Processing Time
+                            </div>
+                        </div>
+                        <div className="text-center p-4 bg-[var(--bg-secondary)] rounded-xl">
+                            <div className="text-[var(--font-h3)] font-bold text-[var(--primary-orange)]">
+                                {metrics.transcription.averageWordLength}
+                            </div>
+                            <div className="text-[var(--font-small)] text-[var(--text-secondary)]">
+                                Avg Word Length
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/* Additional Transcription Details */}
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="p-4 bg-[var(--bg-secondary)] rounded-xl">
+                            <div className="text-[var(--font-small)] text-[var(--text-secondary)] mb-2">
+                                Language Used
+                            </div>
+                            <div className="text-[var(--font-body)] font-medium text-[var(--text-primary)]">
+                                {metrics.transcription.language}
+                            </div>
+                        </div>
+                        <div className="p-4 bg-[var(--bg-secondary)] rounded-xl">
+                            <div className="text-[var(--font-small)] text-[var(--text-secondary)] mb-2">
+                                Total Characters
+                            </div>
+                            <div className="text-[var(--font-body)] font-medium text-[var(--text-primary)]">
+                                {metrics.transcription.characterCount.toLocaleString()}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }

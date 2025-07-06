@@ -1,8 +1,9 @@
 {
-  "name": "whisper-web",
+  "name": "kauli-voice-platform",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "Real-time Voice AI for Africa - Professional AI voice platform demo",
   "scripts": {
     "dev": "vite",
     "clean": "rm -rf node_modules/ dist/",
@@ -17,6 +18,7 @@
     "@headlessui/react": "^1.7.13",
     "@xenova/transformers": "^2.7.0",
     "axios": "^1.3.4",
+    "lucide-react": "^0.263.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

@@ -1,71 +1,229 @@
+import React, { useState, useEffect } from "react";
+import { Header } from "./components/Header";
+import { MetricsDashboard } from "./components/MetricsDashboard";
+import { LanguageSelector } from "./components/LanguageSelector";
+import { RecordingInterface } from "./components/RecordingInterface";
+import { AIAnalysis } from "./components/AIAnalysis";
+import { TelephonyStatus } from "./components/TelephonyStatus";
+import { UseCaseSelector } from "./components/UseCaseSelector";
+import { useTranscriber } from "./hooks/useTranscriber";
 import { AudioManager } from "./components/AudioManager";
 import Transcript from "./components/Transcript";
-import { useTranscriber } from "./hooks/useTranscriber";
 
 function App() {
     const transcriber = useTranscriber();
+    const [showHelp, setShowHelp] = useState(false);
+    const [selectedLanguage, setSelectedLanguage] = useState('sw');
+    const [selectedUseCase, setSelectedUseCase] = useState('health');
+    const [isRecording, setIsRecording] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [audioUrl, setAudioUrl] = useState<string | undefined>(undefined);
+    const [showAIAnalysis, setShowAIAnalysis] = useState(false);
+
+    // Keyboard shortcuts
+    useEffect(() => {
+        const handleKeyPress = (event: KeyboardEvent) => {
+            // Space bar to start/stop recording
+            if (event.code === 'Space' && !event.target?.matches('input, textarea, select')) {
+                event.preventDefault();
+                if (!isRecording && !isProcessing) {
+                    handleStartRecording();
+                } else if (isRecording) {
+                    handleStopRecording();
+                }
+            }
+            
+            // Escape to close modals
+            if (event.code === 'Escape') {
+                setShowHelp(false);
+            }
+            
+            // Ctrl/Cmd + K for help
+            if ((event.ctrlKey || event.metaKey) && event.code === 'KeyK') {
+                event.preventDefault();
+                setShowHelp(!showHelp);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyPress);
+        return () => window.removeEventListener('keydown', handleKeyPress);
+    }, [isRecording, isProcessing]);
+
+    const handleStartRecording = () => {
+        setIsRecording(true);
+        setIsProcessing(false);
+        setAudioUrl(undefined);
+        setShowAIAnalysis(false);
+    };
+
+    const handleStopRecording = () => {
+        setIsRecording(false);
+        setIsProcessing(true);
+        
+        // Simulate processing delay
+        setTimeout(() => {
+            setIsProcessing(false);
+            setAudioUrl('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT');
+            setShowAIAnalysis(true);
+        }, 3000);
+    };
 
     return (
         <div className="min-h-screen bg-[var(--bg-primary)]">
-            {/* Header */}
-            <header className="h-20 bg-white border-b border-[var(--border-light)] flex items-center justify-between px-6">
-                <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-[var(--primary-orange)] rounded-full flex items-center justify-center">
-                        <span className="text-white font-bold text-sm">🔸</span>
-                    </div>
-                    <span className="text-[var(--text-primary)] font-bold text-xl">KAULI</span>
-                </div>
-                <div className="flex items-center space-x-4">
-                    <span className="text-[var(--text-secondary)] text-sm">Real-time Voice for Africa</span>
-                    <a 
-                        href="https://github.com/xenova/transformers.js" 
-                        className="text-[var(--text-secondary)] hover:text-[var(--primary-orange)] transition-colors"
-                        aria-label="GitHub Repository"
-                    >
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clipRule="evenodd" />
-                        </svg>
-                    </a>
-                    <button 
-                        className="text-[var(--text-secondary)] hover:text-[var(--primary-orange)] transition-colors"
-                        aria-label="Help"
-                    >
-                        ?
-                    </button>
-                </div>
-            </header>
+            {/* Professional Header */}
+            <Header onShowHelp={() => setShowHelp(!showHelp)} />
 
             {/* Main Content */}
-            <main className="container mx-auto px-4 py-8 max-w-6xl">
-                {/* Hero Section */}
-                <section className="kauli-gradient rounded-2xl p-12 text-center mb-12">
-                    <h1 className="text-[var(--font-h1)] font-bold text-[var(--text-primary)] mb-4">
-                        Voice AI for African Languages
-                    </h1>
-                    <p className="text-lg text-[var(--text-secondary)] mb-12 max-w-2xl mx-auto">
-                        Real-time speech recognition and analysis for over 20 African dialects
-                    </p>
-                    
-                    {/* Audio Manager Component */}
-                    <AudioManager transcriber={transcriber} />
+            <main className="container mx-auto px-4 py-8 max-w-7xl">
+                {/* Metrics Dashboard */}
+                <section className="mb-8">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Live Performance Metrics</h2>
+                    <MetricsDashboard />
                 </section>
 
-                {/* Transcription Results */}
-                <Transcript transcribedData={transcriber.output} />
+                {/* Two Column Layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Left Column - Controls */}
+                    <div className="lg:col-span-2 space-y-8">
+                        {/* Use Case Selector */}
+                        <UseCaseSelector 
+                            selectedUseCase={selectedUseCase}
+                            onUseCaseChange={setSelectedUseCase}
+                        />
+
+                        {/* Language Selector */}
+                        <LanguageSelector 
+                            selectedLanguage={selectedLanguage}
+                            onLanguageChange={setSelectedLanguage}
+                        />
+
+                        {/* Recording Interface */}
+                        <RecordingInterface 
+                            onStartRecording={handleStartRecording}
+                            onStopRecording={handleStopRecording}
+                            isRecording={isRecording}
+                            isProcessing={isProcessing}
+                            audioUrl={audioUrl}
+                        />
+
+                        {/* AI Analysis */}
+                        <AIAnalysis 
+                            transcription="Sample transcription text for AI analysis"
+                            language={selectedLanguage}
+                            isVisible={showAIAnalysis}
+                        />
+                    </div>
+
+                    {/* Right Column - Status & Results */}
+                    <div className="space-y-8">
+                        {/* Telephony Status */}
+                        <TelephonyStatus />
+
+                        {/* Transcription Results */}
+                        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Transcription Results</h3>
+                            <Transcript transcribedData={transcriber.output} />
+                        </div>
+
+                        {/* Legacy Audio Manager (for file uploads) */}
+                        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Audio Sources</h3>
+                            <AudioManager transcriber={transcriber} />
+                        </div>
+                    </div>
+                </div>
             </main>
 
             {/* Footer */}
-            <footer className="text-center py-6 text-[var(--text-secondary)] text-sm">
-                Made with{" "}
-                <a
-                    className="text-[var(--primary-orange)] hover:underline"
-                    href='https://github.com/xenova/transformers.js'
-                    aria-label="Transformers.js"
-                >
-                    🤗 Transformers.js
-                </a>
-                {" "}• Powered by Kauli Voice Platform
+            <footer className="bg-gray-900 text-white py-8 mt-16">
+                <div className="container mx-auto px-4 max-w-7xl">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                        <div>
+                            <div className="flex items-center space-x-3 mb-4">
+                                <div className="kauli-logo">KAULI</div>
+                                <span className="font-bold text-xl">Kauli Voice Platform</span>
+                            </div>
+                            <p className="text-gray-400 text-sm">
+                                Real-time Voice AI for Africa. Professional speech processing and analysis platform.
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <h4 className="font-semibold mb-4">Platform</h4>
+                            <ul className="space-y-2 text-sm text-gray-400">
+                                <li><a href="#" className="hover:text-white transition-colors">API Documentation</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors">Dashboard</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors">Analytics</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors">Integrations</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h4 className="font-semibold mb-4">Languages</h4>
+                            <ul className="space-y-2 text-sm text-gray-400">
+                                <li><a href="#" className="hover:text-white transition-colors">Kiswahili</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors">Yorùbá</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors">Hausa</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors">Amharic</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h4 className="font-semibold mb-4">Support</h4>
+                            <ul className="space-y-2 text-sm text-gray-400">
+                                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors">Status</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors">Privacy</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
+                        <p>&copy; 2024 Kauli Voice Platform. Powered by advanced AI technology for African languages.</p>
+                    </div>
+                </div>
             </footer>
+
+            {/* Help Modal */}
+            {showHelp && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-2xl p-8 max-w-md mx-4 animate-fadeIn">
+                        <h3 className="text-xl font-semibold text-gray-900 mb-4">Keyboard Shortcuts</h3>
+                        <div className="space-y-3 text-sm">
+                            <div className="flex items-center justify-between">
+                                <span>Start/Stop Recording</span>
+                                <kbd className="bg-gray-100 px-2 py-1 rounded">Space</kbd>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span>Close Modals</span>
+                                <kbd className="bg-gray-100 px-2 py-1 rounded">Esc</kbd>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span>Toggle Help</span>
+                                <kbd className="bg-gray-100 px-2 py-1 rounded">Ctrl+K</kbd>
+                            </div>
+                        </div>
+                        <div className="mt-6 pt-4 border-t border-gray-200">
+                            <h4 className="font-semibold text-gray-900 mb-2">Supported Languages</h4>
+                            <p className="text-sm text-gray-600">
+                                Kiswahili, Yorùbá, Hausa, Amharic, Igbo, isiZulu, and 95+ more African languages
+                            </p>
+                        </div>
+                        <button 
+                            onClick={() => setShowHelp(false)}
+                            className="mt-6 w-full bg-orange-600 text-white py-2 px-4 rounded-lg hover:bg-orange-700 transition-colors"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Keyboard shortcut hint */}
+            <div className="fixed bottom-4 right-4 bg-white shadow-lg rounded-lg px-3 py-2 text-xs text-gray-600 opacity-75 hover:opacity-100 transition-opacity">
+                Press <kbd className="bg-gray-100 px-1 rounded">Ctrl+K</kbd> for help
+            </div>
         </div>
     );
 }
