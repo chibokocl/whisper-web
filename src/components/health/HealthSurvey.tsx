@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Send, Mic, MicOff, Volume2, VolumeX, User, Bot, Play, Pause, MessageCircle } from 'lucide-react';
 import apiService from '../../services/api.js';
+import { VoiceRecorder } from '../VoiceRecorder';
 
 interface Message {
   id: string;
@@ -23,6 +24,7 @@ export const HealthSurvey: React.FC<HealthSurveyProps> = ({ onMetricsUpdate }) =
   const [isListening, setIsListening] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
   const [ttsSupported, setTtsSupported] = useState(false);
+  const [useVoiceRecorder, setUseVoiceRecorder] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
   const synthesisRef = useRef<SpeechSynthesis | null>(null);
@@ -146,6 +148,60 @@ export const HealthSurvey: React.FC<HealthSurveyProps> = ({ onMetricsUpdate }) =
     if (synthesisRef.current && ttsSupported) {
       synthesisRef.current.cancel();
       setMessages(prev => prev.map(msg => ({ ...msg, isPlaying: false })));
+    }
+  };
+
+  // Handle transcription from voice recorder
+  const handleTranscriptionComplete = async (transcribedText: string) => {
+    setUserInput(transcribedText);
+    
+    // Auto-send the transcribed message
+    if (transcribedText.trim()) {
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        role: 'user', 
+        content: transcribedText,
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, userMessage]);
+      setIsTyping(true);
+
+      try {
+        // Send message to backend
+        const { response, metrics } = await apiService.sendMessage(transcribedText, 'sw-KE');
+        
+        const daktariReply: Message = {
+          id: response.id,
+          role: 'daktari',
+          content: response.content,
+          timestamp: new Date(response.timestamp),
+          confidence: response.confidence
+        };
+
+        setMessages(prev => [...prev, daktariReply]);
+        
+        // Update metrics
+        onMetricsUpdate(metrics);
+
+        // Auto-play doctor's response if TTS is enabled
+        if (ttsSupported) {
+          setTimeout(() => speakMessage(daktariReply), 100);
+        }
+
+      } catch (error) {
+        console.error('API Error:', error);
+        // Fallback response
+        const fallbackReply: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'daktari', 
+          content: 'Samahani, sikuelewi vizuri. Je, unaweza kurudia?',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, fallbackReply]);
+      }
+
+      setIsTyping(false);
     }
   };
 
@@ -400,32 +456,63 @@ export const HealthSurvey: React.FC<HealthSurveyProps> = ({ onMetricsUpdate }) =
         </div>
 
         {/* Input Area */}
-        <div className="flex gap-2 items-end">
-          <input
-            type="text"
-            placeholder="Andika jibu lako kwa Kiswahili..."
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-            className="flex-1 p-2 border rounded-lg bg-gray-100 text-gray-800"
-          />
-          
-          {speechSupported && (
+        <div className="space-y-4">
+          {/* Voice Recorder Toggle */}
+          <div className="flex items-center justify-center">
             <button
-              onClick={isListening ? stopListening : startListening}
-              className={`text-grey-700 ${isListening ? 'bg-grey-400' : ''} p-2 rounded-lg`}
+              onClick={() => setUseVoiceRecorder(!useVoiceRecorder)}
+              className={`flex items-center px-4 py-2 rounded-lg font-semibold transition-colors ${
+                useVoiceRecorder 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-grey-400 text-grey-900 hover:bg-grey-500'
+              }`}
             >
-              {isListening ? 'Stop' : 'Listen'}
+              <Mic className="mr-2" size={20} />
+              {useVoiceRecorder ? 'Kusikiliza Sauti' : 'Andika Maandishi'}
             </button>
+          </div>
+
+          {/* Voice Recorder */}
+          {useVoiceRecorder && (
+            <div className="flex justify-center">
+              <VoiceRecorder
+                onTranscriptionComplete={handleTranscriptionComplete}
+                language="sw-KE"
+                disabled={isTyping}
+              />
+            </div>
           )}
-          
-          <button
-            onClick={sendMessage}
-            disabled={!userInput.trim()}
-            className="bg-grey-500 text-grey-900 px-4 py-2 rounded-lg"
-          >
-            Tuma
-          </button>
+
+          {/* Text Input */}
+          {!useVoiceRecorder && (
+            <div className="flex gap-2 items-end">
+              <input
+                type="text"
+                placeholder="Andika jibu lako kwa Kiswahili..."
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                className="flex-1 p-2 border rounded-lg bg-gray-100 text-gray-800"
+              />
+              
+              {speechSupported && (
+                <button
+                  onClick={isListening ? stopListening : startListening}
+                  className={`text-grey-700 ${isListening ? 'bg-grey-400' : ''} p-2 rounded-lg`}
+                >
+                  {isListening ? 'Stop' : 'Listen'}
+                </button>
+              )}
+              
+              <button
+                onClick={sendMessage}
+                disabled={!userInput.trim()}
+                className="bg-grey-500 text-grey-900 px-4 py-2 rounded-lg"
+              >
+                Tuma
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Voice Status */}
