@@ -8,23 +8,11 @@
 /* Kauli Voice Platform Design System */
 
 :root {
-  /* Primary Colors */
-  --kauli-orange: #FF6B35;
-  --kauli-dark: #1A1B23;
-  --kauli-blue: #4A90E2;
-  
-  /* Neutral Colors */
   --bg-primary: #FAFBFC;
   --bg-secondary: #F5F6F8;
-  --text-primary: #1A1B23;
-  --text-secondary: #6B7280;
-  --border-light: #E5E7EB;
-  --success-green: #10B981;
-  --warning-amber: #F59E0B;
-  --error-red: #EF4444;
-  --info-blue: #3B82F6;
-  
-  /* Typography */
+  --text-primary: #373737;
+  --text-secondary: #828385;
+  --border-light: #C0C0C2;
   --font-h1: 2.5rem;
   --font-h2: 2rem;
   --font-h3: 1.5rem;
@@ -471,22 +459,23 @@ textarea:focus {
   outline-offset: 2px;
 }
 
-/* Custom Scrollbar */
+/* Minimalistic custom scrollbar using grey palette */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
+  background: #C0C0C2; /* grey-500 */
 }
-
-::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
-}
-
 ::-webkit-scrollbar-thumb {
-  background: var(--kauli-orange);
-  border-radius: 4px;
+  background: #828385; /* grey-700 */
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #565656; /* grey-800 */
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #E55A2B;
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #828385 #C0C0C2;
 }
 
 /* Responsive Design */
@@ -586,47 +575,4 @@ audio::-webkit-media-controls-panel {
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
-}
-
-/* Badge Styles */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.badge.success {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--success-green);
-}
-
-.badge.warning {
-  background: rgba(245, 158, 11, 0.1);
-  color: var(--warning-amber);
-}
-
-.badge.error {
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--error-red);
-}
-
-.badge.info {
-  background: rgba(59, 130, 246, 0.1);
-  color: var(--info-blue);
-}
-
-.badge.primary {
-  background: rgba(255, 107, 53, 0.1);
-  color: var(--kauli-orange);
-}
-
-.badge.live {
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--error-red);
-  animation: pulse 2s infinite;
 }

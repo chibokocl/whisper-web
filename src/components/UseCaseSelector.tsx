@@ -1,13 +1,11 @@
+import { MessageCircle, BookOpen, Stethoscope } from 'lucide-react';
 import React, { useState } from 'react';
-import '@material/web/icon/icon.js';
-import '@material/web/button/filled-button.js';
-import '@material/web/button/outlined-button.js';
 
 interface UseCase {
   id: string;
   title: string;
   description: string;
-  icon: string;
+  icon: React.ReactNode;
   sampleText: string;
   languages: string[];
   features: string[];
@@ -19,7 +17,7 @@ const useCases: UseCase[] = [
     id: 'health',
     title: 'Health Survey',
     description: 'Rural health assessment in local languages',
-    icon: 'favorite',
+    icon: <Stethoscope size={20} />,
     sampleText: 'Habari, nina maswali machache kuhusu afya yako. Je, unahisi maumivu makali?',
     languages: ['Kiswahili', 'Yorùbá', 'Hausa', 'Amharic'],
     features: ['Symptom Assessment', 'Medical History', 'Treatment Tracking', 'Follow-up Scheduling'],
@@ -29,7 +27,7 @@ const useCases: UseCase[] = [
     id: 'agriculture',
     title: 'Agricultural Advisory',
     description: 'Crop management guidance for farmers',
-    icon: 'eco',
+    icon: <Stethoscope size={20} />,
     sampleText: 'Je, msimu huu umepanda mazao gani? Una shida gani na kilimo?',
     languages: ['Kiswahili', 'Yorùbá', 'Hausa', 'Igbo'],
     features: ['Crop Monitoring', 'Weather Alerts', 'Pest Management', 'Market Prices'],
@@ -39,7 +37,7 @@ const useCases: UseCase[] = [
     id: 'education',
     title: 'Education Assessment',
     description: 'Learning evaluation in native languages',
-    icon: 'school',
+    icon: <BookOpen size={20} />,
     sampleText: 'Tunaenda kujifunza hesabu leo. Una swali lolote?',
     languages: ['Kiswahili', 'Yorùbá', 'isiZulu', 'Afrikaans'],
     features: ['Progress Tracking', 'Skill Assessment', 'Parent Communication', 'Resource Allocation'],
@@ -49,7 +47,7 @@ const useCases: UseCase[] = [
     id: 'business',
     title: 'Business Intelligence',
     description: 'Market research and customer feedback',
-    icon: 'business',
+    icon: <Stethoscope size={20} />,
     sampleText: 'Tafadhali tuambie kuhusu huduma yetu. Una maoni gani?',
     languages: ['Kiswahili', 'Yorùbá', 'Hausa', 'Amharic'],
     features: ['Customer Feedback', 'Market Analysis', 'Product Testing', 'Service Quality'],
@@ -59,7 +57,7 @@ const useCases: UseCase[] = [
     id: 'community',
     title: 'Community Outreach',
     description: 'Public service announcements and surveys',
-    icon: 'groups',
+    icon: <Stethoscope size={20} />,
     sampleText: 'Habari za jioni. Tunaomba msaada wenu kuhusu mradi huu.',
     languages: ['Kiswahili', 'Yorùbá', 'Hausa', 'isiXhosa'],
     features: ['Public Announcements', 'Community Surveys', 'Emergency Alerts', 'Event Coordination'],
@@ -69,7 +67,7 @@ const useCases: UseCase[] = [
     id: 'research',
     title: 'Research & Data Collection',
     description: 'Academic and field research support',
-    icon: 'public',
+    icon: <Stethoscope size={20} />,
     sampleText: 'Tunafanya utafiti kuhusu hali ya afya. Unaweza kusaidia?',
     languages: ['Kiswahili', 'Yorùbá', 'Amharic', 'Somali'],
     features: ['Data Collection', 'Survey Administration', 'Field Research', 'Academic Studies'],
@@ -113,7 +111,7 @@ export const UseCaseSelector: React.FC<UseCaseSelectorProps> = ({
           >
             <div className="flex items-start space-x-3">
               <div className={`p-2 rounded-lg text-white ${useCase.color}`}>
-                <md-icon>{useCase.icon}</md-icon>
+                {useCase.icon}
               </div>
               <div className="flex-1">
                 <h4 className="font-semibold text-gray-900 mb-1">{useCase.title}</h4>
@@ -133,7 +131,7 @@ export const UseCaseSelector: React.FC<UseCaseSelectorProps> = ({
       <div className="bg-gray-50 rounded-xl p-6">
         <div className="flex items-center space-x-3 mb-4">
           <div className={`p-3 rounded-lg text-white ${selectedCase.color}`}>
-            <md-icon>{selectedCase.icon}</md-icon>
+            {selectedCase.icon}
           </div>
           <div>
             <h4 className="text-lg font-semibold text-gray-900">{selectedCase.title}</h4>
@@ -178,12 +176,12 @@ export const UseCaseSelector: React.FC<UseCaseSelectorProps> = ({
 
         {/* Action Buttons */}
         <div className="flex space-x-3 mt-6">
-          <md-filled-button className="flex-1 bg-orange-600 text-white py-2 px-4 rounded-lg hover:bg-orange-700 transition-colors">
+          <button className="flex-1 bg-orange-600 text-white py-2 px-4 rounded-lg hover:bg-orange-700 transition-colors">
             Start Demo
-          </md-filled-button>
-          <md-outlined-button className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors">
+          </button>
+          <button className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors">
             Learn More
-          </md-outlined-button>
+          </button>
         </div>
       </div>
     </div>

@@ -1,12 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Send, Mic, MicOff, Volume2, VolumeX, User, Bot, Play, Pause } from 'lucide-react';
-
-// Material 3 Web Components
-import '@material/web/button/filled-button.js';
-import '@material/web/button/outlined-button.js';
-import '@material/web/iconbutton/icon-button.js';
-import '@material/web/textfield/outlined-text-field.js';
-import '@material/web/icon/icon.js';
+import { Send, Mic, MicOff, Volume2, VolumeX, User, Bot, Play, Pause, MessageCircle } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -283,27 +276,27 @@ export const HealthSurvey: React.FC<HealthSurveyProps> = ({ onMetricsUpdate }) =
     <div className="material-elevation-1 bg-white rounded-2xl w-full">
       <div className="p-6">
         {/* Doctor Header */}
-        <div className="flex items-center mb-6 p-4 bg-blue-50 rounded-lg">
-          <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl">
+        <div className="flex items-center mb-6 p-4 bg-grey-50 rounded-lg">
+          <div className="w-12 h-12 bg-grey-700 rounded-full flex items-center justify-center text-grey-50 text-xl">
             👩‍⚕️
           </div>
           <div className="ml-4 flex-1">
             <h3 className="font-semibold text-gray-900">Daktari Maria Mwangi</h3>
             <p className="text-sm text-gray-600">Afisa Afya wa Jamii • Kaunti ya Kakamega</p>
             <div className="flex items-center mt-1 space-x-2">
-              <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-1">
-                <md-icon>language</md-icon>
+              <div className="bg-grey-400 text-grey-900 px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-1">
+                <MessageCircle size={16} className="mr-2 text-grey-700" />
                 <span>🇰🇪 Kiswahili</span>
               </div>
               {speechSupported && (
-                <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-1">
-                  <md-icon>mic</md-icon>
+                <div className="bg-grey-400 text-grey-900 px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-1">
+                  <MessageCircle size={16} className="mr-2 text-grey-700" />
                   <span>Voice Input</span>
                 </div>
               )}
               {ttsSupported && (
-                <div className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-1">
-                  <md-icon>volume_up</md-icon>
+                <div className="bg-grey-400 text-grey-900 px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-1">
+                  <MessageCircle size={16} className="mr-2 text-grey-700" />
                   <span>Voice Output</span>
                 </div>
               )}
@@ -317,8 +310,8 @@ export const HealthSurvey: React.FC<HealthSurveyProps> = ({ onMetricsUpdate }) =
             <div key={message.id} className={`mb-4 flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
                 message.role === 'user' 
-                  ? 'bg-blue-500 text-white' 
-                  : 'bg-white text-gray-900 shadow-sm'
+                  ? 'bg-grey-400 text-grey-900 border border-grey-500' 
+                  : 'bg-grey-50 text-grey-900 border border-grey-400'
               }`}>
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center">
@@ -328,12 +321,12 @@ export const HealthSurvey: React.FC<HealthSurveyProps> = ({ onMetricsUpdate }) =
                     </span>
                   </div>
                   {message.role === 'daktari' && ttsSupported && (
-                    <md-icon-button 
+                    <button
                       onClick={() => message.isPlaying ? stopSpeaking() : speakMessage(message)}
-                      className="ml-2"
+                      className="ml-2 text-grey-700"
                     >
-                      <md-icon>{message.isPlaying ? 'pause' : 'play_arrow'}</md-icon>
-                    </md-icon-button>
+                      {message.isPlaying ? 'Pause' : 'Play'}
+                    </button>
                   )}
                 </div>
                 <p>{message.content}</p>
@@ -375,7 +368,7 @@ export const HealthSurvey: React.FC<HealthSurveyProps> = ({ onMetricsUpdate }) =
               <button
                 key={phrase}
                 onClick={() => setUserInput(phrase)}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200"
+                className="bg-grey-400 text-grey-900 border border-grey-500 hover:bg-grey-500 px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200"
               >
                 {phrase}
               </button>
@@ -385,51 +378,50 @@ export const HealthSurvey: React.FC<HealthSurveyProps> = ({ onMetricsUpdate }) =
 
         {/* Input Area */}
         <div className="flex gap-2 items-end">
-          <md-outlined-text-field
-            label="Andika jibu lako kwa Kiswahili..."
+          <input
+            type="text"
+            placeholder="Andika jibu lako kwa Kiswahili..."
             value={userInput}
-            onInput={(e) => setUserInput((e.target as HTMLInputElement).value)}
+            onChange={(e) => setUserInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-            className="flex-1"
-          >
-            <md-icon slot="leading-icon">chat</md-icon>
-          </md-outlined-text-field>
+            className="flex-1 p-2 border rounded-lg bg-gray-100 text-gray-800"
+          />
           
           {speechSupported && (
-            <md-icon-button
+            <button
               onClick={isListening ? stopListening : startListening}
-              className={isListening ? 'bg-red-500 text-white' : ''}
+              className={`text-grey-700 ${isListening ? 'bg-grey-400' : ''} p-2 rounded-lg`}
             >
-              <md-icon>{isListening ? 'mic_off' : 'mic'}</md-icon>
-            </md-icon-button>
+              {isListening ? 'Stop' : 'Listen'}
+            </button>
           )}
           
-          <md-filled-button
+          <button
             onClick={sendMessage}
             disabled={!userInput.trim()}
+            className="bg-grey-500 text-grey-900 px-4 py-2 rounded-lg"
           >
-            <md-icon slot="icon">send</md-icon>
             Tuma
-          </md-filled-button>
+          </button>
         </div>
 
         {/* Voice Status */}
         {(speechSupported || ttsSupported) && (
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+          <div className="mt-4 p-3 bg-grey-50 rounded-lg">
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center space-x-4">
                 {speechSupported && (
                   <div className="flex items-center">
-                    <md-icon className="text-blue-600 mr-1">mic</md-icon>
-                    <span className="text-blue-800">
+                    <MessageCircle size={16} className="text-grey-700 mr-1" />
+                    <span className="text-grey-900">
                       {isListening ? 'Inasikiliza...' : 'Bofya kusema'}
                     </span>
                   </div>
                 )}
                 {ttsSupported && (
                   <div className="flex items-center">
-                    <md-icon className="text-green-600 mr-1">volume_up</md-icon>
-                    <span className="text-green-800">Sauti ya Daktari</span>
+                    <MessageCircle size={16} className="text-grey-700 mr-1" />
+                    <span className="text-grey-900">Sauti ya Daktari</span>
                   </div>
                 )}
               </div>

@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import '@material/web/icon/icon.js';
 import '@material/web/button/filled-button.js';
 import '@material/web/button/outlined-button.js';
+import { Mic, StopCircle, Play, Pause } from 'lucide-react';
+import React from 'react';
 
 import { formatAudioTimestamp } from "../utils/AudioUtils";
 import { webmFixDuration } from "../utils/BlobFix";
@@ -21,6 +23,35 @@ function getMimeType() {
     }
     return undefined;
 }
+
+interface AudioRecorderProps {
+    isRecording: boolean;
+    onRecord: () => void;
+    onStop: () => void;
+    onPlay: () => void;
+    onPause: () => void;
+    isPlaying: boolean;
+}
+
+export const AudioRecorder: React.FC<AudioRecorderProps> = ({ isRecording, onRecord, onStop, onPlay, onPause, isPlaying }) => (
+    <div className="flex space-x-2 items-center">
+        <button
+            onClick={isRecording ? onStop : onRecord}
+            className={`px-4 py-2 rounded-lg font-semibold transition-colors flex items-center
+                ${isRecording ? 'bg-red-600 text-grey-50' : 'bg-grey-800 text-grey-50 hover:bg-grey-900'}`}
+        >
+            {isRecording ? <StopCircle className="mr-2" size={20} /> : <Mic className="mr-2" size={20} />}
+            {isRecording ? 'Stop' : 'Record'}
+        </button>
+        <button
+            onClick={isPlaying ? onPause : onPlay}
+            className="px-4 py-2 rounded-lg font-semibold bg-grey-400 text-grey-900 hover:bg-grey-500 flex items-center"
+        >
+            {isPlaying ? <Pause className="mr-2" size={20} /> : <Play className="mr-2" size={20} />}
+            {isPlaying ? 'Pause' : 'Play'}
+        </button>
+    </div>
+);
 
 export default function AudioRecorder(props: {
     onRecordingComplete: (blob: Blob) => void;
@@ -123,22 +154,14 @@ export default function AudioRecorder(props: {
 
     return (
         <div className='flex flex-col justify-center items-center'>
-            <md-filled-button
-                type='button'
-                className={`m-2 inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 transition-all duration-200 ${
-                    recording
-                        ? "bg-red-500 hover:bg-red-600"
-                        : "bg-green-500 hover:bg-green-600"
-                }`}
-                onClick={handleToggleRecording}
-            >
-                <md-icon className="mr-2">
-                    {recording ? 'stop' : 'mic'}
-                </md-icon>
-                {recording
-                    ? `Stop Recording (${formatAudioTimestamp(duration)})`
-                    : "Start Recording"}
-            </md-filled-button>
+            <AudioRecorder
+                isRecording={recording}
+                onRecord={handleToggleRecording}
+                onStop={stopRecording}
+                onPlay={() => {}}
+                onPause={() => {}}
+                isPlaying={false}
+            />
 
             {recordedBlob && (
                 <audio className='w-full' ref={audioRef} controls>
