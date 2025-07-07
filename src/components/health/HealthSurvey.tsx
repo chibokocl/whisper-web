@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Send, Mic, MicOff, Volume2, VolumeX, User, Bot, Play, Pause, MessageCircle } from 'lucide-react';
+import apiService from '../../services/api.js';
 
 interface Message {
   id: string;
@@ -37,10 +38,15 @@ export const HealthSurvey: React.FC<HealthSurveyProps> = ({ onMetricsUpdate }) =
       recognitionRef.current.lang = 'sw-KE'; // Kiswahili (Kenya)
       setSpeechSupported(true);
 
-      recognitionRef.current.onresult = (event: any) => {
+      recognitionRef.current.onresult = async (event: any) => {
         const transcript = event.results[0][0].transcript;
         setUserInput(transcript);
         setIsListening(false);
+        
+        // Auto-send the transcribed message
+        if (transcript.trim()) {
+          await sendMessage();
+        }
       };
 
       recognitionRef.current.onerror = (event: any) => {
@@ -58,13 +64,34 @@ export const HealthSurvey: React.FC<HealthSurveyProps> = ({ onMetricsUpdate }) =
 
   // Initialize with doctor's greeting
   useEffect(() => {
-    const greeting: Message = {
-      id: '1',
-      role: 'daktari',
-      content: 'Hujambo! Mimi ni Daktari Maria. Nina maswali machache kuhusu afya yako. Je, unaweza kuniambia jina lako?',
-      timestamp: new Date()
+    const initializeConversation = async () => {
+      try {
+        // Connect to WebSocket
+        apiService.connectWebSocket();
+        
+        // Start conversation with backend
+        const { greeting } = await apiService.startConversation('sw-KE');
+        
+        setMessages([greeting]);
+      } catch (error) {
+        console.error('Failed to initialize conversation:', error);
+        // Fallback to local greeting
+        const fallbackGreeting: Message = {
+          id: '1',
+          role: 'daktari',
+          content: 'Hujambo! Mimi ni Daktari Maria. Nina maswali machache kuhusu afya yako. Je, unaweza kuniambia jina lako?',
+          timestamp: new Date()
+        };
+        setMessages([fallbackGreeting]);
+      }
     };
-    setMessages([greeting]);
+    
+    initializeConversation();
+    
+    // Cleanup function
+    return () => {
+      apiService.disconnect();
+    };
   }, []);
 
   // Auto scroll to bottom
@@ -137,24 +164,20 @@ export const HealthSurvey: React.FC<HealthSurveyProps> = ({ onMetricsUpdate }) =
     setIsTyping(true);
 
     try {
-      // Simulate API call with realistic response time
-      await new Promise(resolve => setTimeout(resolve, 800));
-
-      // Generate contextual response based on user input
-      const response = generateDoctorResponse(userInput, messages.length);
+      // Send message to backend
+      const { response, metrics } = await apiService.sendMessage(userInput, 'sw-KE');
       
       const daktariReply: Message = {
-        id: (Date.now() + 1).toString(),
+        id: response.id,
         role: 'daktari',
-        content: response.text,
-        timestamp: new Date(),
+        content: response.content,
+        timestamp: new Date(response.timestamp),
         confidence: response.confidence
       };
 
       setMessages(prev => [...prev, daktariReply]);
       
       // Update metrics
-      const metrics = calculateMetrics(userInput, response.confidence);
       onMetricsUpdate(metrics);
 
       // Auto-play doctor's response if TTS is enabled
