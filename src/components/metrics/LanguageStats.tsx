@@ -113,7 +113,7 @@ export const LanguageStats: React.FC<LanguageStatsProps> = ({ metrics }) => {
         <div className="mt-6 p-4 bg-grey-400 rounded-lg text-grey-900 border border-grey-500">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-semibold">Mafanikio ya Chanzo Requirements</h3>
+              <h3 className="font-semibold">Success Requirements</h3>
               <p className="text-sm opacity-90">WER {'< 18%'} • Latency {'< 2s'} • African Language Focus</p>
             </div>
             <div className="text-right">
