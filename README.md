@@ -71,19 +71,73 @@ The system tracks and displays real-time metrics:
 
 ### 🚀 Quick Start
 
+### Development Setup
+
+This is a monorepo with both frontend and backend. You can start both servers with a single command:
+
 ```bash
-# Install dependencies
-npm install
+# Install all dependencies (frontend + backend)
+npm run install:all
 
-# Start development server
+# Start both frontend and backend in development mode
 npm run dev
+```
 
-# Build for production
+**Alternative startup methods:**
+
+```bash
+# Using the custom development script (recommended)
+npm run dev:script
+
+# Using Windows batch file (Windows users)
+dev.bat
+
+# Start only frontend
+npm run dev:frontend-only
+
+# Start only backend  
+npm run dev:backend-only
+```
+
+**What happens when you run `npm run dev`:**
+- 🌐 **Frontend**: Vite dev server on `http://localhost:5173`
+- 🔧 **Backend**: Express server on `http://localhost:3001`
+- 📊 **WebSocket**: Real-time communication on `ws://localhost:3001`
+- 📚 **API Docs**: Interactive documentation at `http://localhost:3001/api/docs`
+
+### Production Build
+
+```bash
+# Build frontend for production
 npm run build
 
-# Deploy to Surge.sh
-npm run deploy-frontend
+# Start production servers
+npm start
 ```
+
+### API Documentation
+
+The backend includes comprehensive API documentation:
+
+```bash
+# Generate static documentation
+npm run docs:generate
+
+# Serve documentation locally
+npm run docs:serve
+```
+
+**Available Documentation:**
+- 📚 **Interactive Docs**: `http://localhost:3001/api/docs` - Beautiful Redoc interface
+- 📋 **OpenAPI Spec**: `http://localhost:3001/api/openapi` - Raw OpenAPI specification
+- 🔍 **Health Check**: `http://localhost:3001/api/health` - API status
+
+**API Features Documented:**
+- 🎤 Speech-to-text transcription
+- 💬 Conversation management
+- 📊 Real-time metrics tracking
+- 🌍 Kiswahili language support
+- 🔄 WebSocket communication
 
 ### 📱 Demo Instructions
 

@@ -4,8 +4,17 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Kiswahili Health AI - African Language Understanding Demo for Chanzo Job Application",
+  "workspaces": [
+    ".",
+    "backend"
+  ],
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:script": "node scripts/dev.js",
+    "dev:frontend": "vite",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend-only": "vite",
+    "dev:backend-only": "cd backend && npm run dev",
     "clean": "rm -rf node_modules/ dist/",
     "build": "tsc && vite build",
     "preview": "vite preview",
@@ -13,7 +22,13 @@
     "lint:fix": "eslint --fix src/**/*.{js,jsx,ts,tsx,json}",
     "format": "prettier --write src/**/*.{js,jsx,ts,tsx,css,md,json} --config ./.prettierrc",
     "tsc": "tsc",
-    "deploy-frontend": "npm run build && surge ./dist kiswahili-health-ai.surge.sh"
+    "deploy-frontend": "npm run build && surge ./dist kiswahili-health-ai.surge.sh",
+    "install:all": "npm install && cd backend && npm install",
+    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
+    "start:frontend": "vite preview",
+    "start:backend": "cd backend && npm start",
+    "docs:generate": "cd backend && npm run docs:build",
+    "docs:serve": "cd backend && npm run docs:serve"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.13",
@@ -32,6 +47,7 @@
     "@typescript-eslint/parser": "^5.57.0",
     "@vitejs/plugin-react": "^3.1.0",
     "autoprefixer": "^10.4.14",
+    "concurrently": "^8.2.2",
     "eslint": "^8.37.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-config-standard-with-typescript": "^34.0.1",

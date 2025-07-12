@@ -79,11 +79,11 @@ export const HealthSurvey: React.FC<HealthSurveyProps> = ({ onMetricsUpdate }) =
         console.error('Failed to initialize conversation:', error);
         // Fallback to local greeting
         const fallbackGreeting: Message = {
-          id: '1',
-          role: 'daktari',
-          content: 'Hujambo! Mimi ni Daktari Maria. Nina maswali machache kuhusu afya yako. Je, unaweza kuniambia jina lako?',
-          timestamp: new Date()
-        };
+      id: '1',
+      role: 'daktari',
+      content: 'Hujambo! Mimi ni Daktari Maria. Nina maswali machache kuhusu afya yako. Je, unaweza kuniambia jina lako?',
+      timestamp: new Date()
+    };
         setMessages([fallbackGreeting]);
       }
     };
@@ -485,32 +485,32 @@ export const HealthSurvey: React.FC<HealthSurveyProps> = ({ onMetricsUpdate }) =
 
           {/* Text Input */}
           {!useVoiceRecorder && (
-            <div className="flex gap-2 items-end">
-              <input
-                type="text"
-                placeholder="Andika jibu lako kwa Kiswahili..."
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                className="flex-1 p-2 border rounded-lg bg-gray-100 text-gray-800"
-              />
-              
-              {speechSupported && (
-                <button
-                  onClick={isListening ? stopListening : startListening}
-                  className={`text-grey-700 ${isListening ? 'bg-grey-400' : ''} p-2 rounded-lg`}
-                >
-                  {isListening ? 'Stop' : 'Listen'}
-                </button>
-              )}
-              
-              <button
-                onClick={sendMessage}
-                disabled={!userInput.trim()}
-                className="bg-grey-500 text-grey-900 px-4 py-2 rounded-lg"
-              >
-                Tuma
-              </button>
+        <div className="flex gap-2 items-end">
+          <input
+            type="text"
+            placeholder="Andika jibu lako kwa Kiswahili..."
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+            className="flex-1 p-2 border rounded-lg bg-gray-100 text-gray-800"
+          />
+          
+          {speechSupported && (
+            <button
+              onClick={isListening ? stopListening : startListening}
+              className={`text-grey-700 ${isListening ? 'bg-grey-400' : ''} p-2 rounded-lg`}
+            >
+              {isListening ? 'Stop' : 'Listen'}
+            </button>
+          )}
+          
+          <button
+            onClick={sendMessage}
+            disabled={!userInput.trim()}
+            className="bg-grey-500 text-grey-900 px-4 py-2 rounded-lg"
+          >
+            Tuma
+          </button>
             </div>
           )}
         </div>

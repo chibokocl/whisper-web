@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Mic, StopCircle, Loader2, Play, Pause } from 'lucide-react';
-import apiService from '../services/api.js';
+import { useTranscriber } from '../hooks/useTranscriber';
 
 interface VoiceRecorderProps {
   onTranscriptionComplete: (text: string) => void;
@@ -24,6 +24,20 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   const chunksRef = useRef<Blob[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const durationTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Use the Transformers.js transcriber
+  const transcriber = useTranscriber();
+  
+  // Map language codes to Whisper format
+  const getWhisperLanguage = (lang: string) => {
+    const languageMap: { [key: string]: string } = {
+      'sw-KE': 'sw', // Swahili
+      'sw': 'sw',    // Swahili (alternative)
+      'en': 'en',    // English
+      'auto': 'auto' // Auto-detect
+    };
+    return languageMap[lang] || 'auto';
+  };
 
   // Get supported MIME type
   const getMimeType = () => {
@@ -116,27 +130,43 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     }
   };
 
-  // Transcribe audio
+  // Transcribe audio using Transformers.js
   const transcribeAudio = async (blob: Blob) => {
     setIsTranscribing(true);
     
     try {
-      // Convert blob to file
-      const file = new File([blob], 'recording.wav', { type: blob.type });
+      // Convert blob to AudioBuffer
+      const arrayBuffer = await blob.arrayBuffer();
+      const audioContext = new AudioContext({ sampleRate: 16000 });
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
       
-      // Send to backend for transcription
-      const result = await apiService.transcribeAudio(file, language);
+      // Use the Transformers.js transcriber
+      const whisperLanguage = getWhisperLanguage(language);
+      transcriber.setLanguage(whisperLanguage);
+      transcriber.setSubtask("transcribe");
+      transcriber.start(audioBuffer);
       
-      if (result.text) {
-        onTranscriptionComplete(result.text);
-      } else {
-        throw new Error('No transcription result');
-      }
+      // Listen for transcription completion
+      const checkTranscription = () => {
+        if (transcriber.transcript && !transcriber.isBusy) {
+          onTranscriptionComplete(transcriber.transcript.text);
+          setIsTranscribing(false);
+        } else if (transcriber.isBusy) {
+          // Still processing, check again in 100ms
+          setTimeout(checkTranscription, 100);
+        } else {
+          // No result after processing
+          setIsTranscribing(false);
+          alert('No transcription result. Please try again.');
+        }
+      };
+      
+      // Start checking for results
+      setTimeout(checkTranscription, 500);
       
     } catch (error) {
       console.error('Transcription error:', error);
       alert('Failed to transcribe audio. Please try again.');
-    } finally {
       setIsTranscribing(false);
     }
   };
@@ -183,12 +213,12 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         {/* Record Button */}
         <button
           onClick={isRecording ? stopRecording : startRecording}
-          disabled={disabled || isTranscribing}
+          disabled={disabled || isTranscribing || transcriber.isBusy || transcriber.isModelLoading}
           className={`flex items-center px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
             isRecording 
               ? 'bg-red-600 text-white shadow-lg scale-105' 
               : 'bg-grey-800 text-grey-50 hover:bg-grey-900'
-          } ${disabled || isTranscribing ? 'opacity-50 cursor-not-allowed' : ''}`}
+          } ${disabled || isTranscribing || transcriber.isBusy || transcriber.isModelLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {isRecording ? (
             <StopCircle className="mr-2 animate-pulse" size={20} />
@@ -210,6 +240,14 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
           <div className="flex items-center text-grey-600">
             <Loader2 className="animate-spin mr-2" size={16} />
             <span className="text-sm">Transcribing...</span>
+          </div>
+        )}
+
+        {/* Model Loading Indicator */}
+        {transcriber.isModelLoading && (
+          <div className="flex items-center text-grey-600">
+            <Loader2 className="animate-spin mr-2" size={16} />
+            <span className="text-sm">Loading AI model...</span>
           </div>
         )}
       </div>

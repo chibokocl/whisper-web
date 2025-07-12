@@ -28,7 +28,7 @@ export default {
     }.wav`,
     DEFAULT_MODEL: "Xenova/whisper-tiny",
     DEFAULT_SUBTASK: "transcribe",
-    DEFAULT_LANGUAGE: "english",
+    DEFAULT_LANGUAGE: "sw", // Swahili for our health AI
     DEFAULT_QUANTIZED: isMobileOrTablet,
-    DEFAULT_MULTILINGUAL: false,
+    DEFAULT_MULTILINGUAL: true, // Enable multilingual for Swahili support
 };

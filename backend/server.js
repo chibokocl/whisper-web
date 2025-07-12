@@ -232,6 +232,19 @@ app.get('/api/metrics/:sessionId', (req, res) => {
   }
 });
 
+// API Documentation
+app.get('/api/docs', (req, res) => {
+  res.sendFile(path.join(__dirname, 'docs', 'api.html'));
+});
+
+app.get('/api/docs/index', (req, res) => {
+  res.sendFile(path.join(__dirname, 'docs', 'index.html'));
+});
+
+app.get('/api/openapi', (req, res) => {
+  res.sendFile(path.join(__dirname, 'openapi.yaml'));
+});
+
 // Error handling middleware
 app.use((error, req, res, next) => {
   console.error('Unhandled error:', error);
@@ -249,4 +262,6 @@ server.listen(PORT, () => {
   console.log(`🚀 Whisper Web Backend running on port ${PORT}`);
   console.log(`📡 WebSocket server ready for real-time communication`);
   console.log(`🌐 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`📚 API Documentation: http://localhost:${PORT}/api/docs`);
+  console.log(`📋 OpenAPI Spec: http://localhost:${PORT}/api/openapi`);
 }); 
